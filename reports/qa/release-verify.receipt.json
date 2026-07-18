@@ -2,9 +2,9 @@
   "schemaVersion": 1,
   "command": "npm run release:verify",
   "exitCode": 0,
-  "completedAt": "2026-07-18T11:42:15.053Z",
+  "completedAt": "2026-07-18T20:29:06.162Z",
   "outputPath": "reports/qa/release-verify.log",
-  "outputSha256": "321100cf9c7d611ae39f7bbe237ce0bd3546ba3bb2b9fcc9f46c09f5c905eb53",
+  "outputSha256": "a620b184e4cf2d807c0151560664c27da6c4d5ba03d7d6d2a502360e4b405c7b",
   "environment": "win32 x64; Node v25.9.0; single-replica container contract",
   "steps": 20
 }

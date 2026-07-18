@@ -37,7 +37,8 @@ verification, and a B2 fetch-back byte hash for every asset before it can claim 
 
 ## How we built it
 
-ProofForge is a FastAPI application backed by SQLite WAL storage. Genblaze's `AgentLoop`
+Codex conceived and implemented ProofForge from ContestPilot's criterion plan. ProofForge is
+a FastAPI application backed by SQLite WAL storage. Genblaze's `AgentLoop`
 coordinates generation and rubric evaluation, passing revision feedback into the next parented
 run. Demo SVGs are parsed with defusedxml. Live assets are bounded to 20 MiB, hashed in chunks,
 stored under SHA-256-derived names, written to B2 through `genblaze-s3`, then fetched back and

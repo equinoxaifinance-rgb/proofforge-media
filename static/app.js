@@ -212,7 +212,7 @@ fetch("/api/capabilities")
   .then(async (data) => {
     document.querySelector("#system-copy").textContent = data.liveReady
       ? "Operator B2 path configured"
-      : "Local synthetic demo / B2 locked";
+      : "Public deterministic demo / live generation locked; B2 showcase verified below";
     if (!data.showcaseReady) return;
     const response = await fetch("/api/showcase");
     if (!response.ok) throw new Error(`Showcase request failed with HTTP ${response.status}.`);
