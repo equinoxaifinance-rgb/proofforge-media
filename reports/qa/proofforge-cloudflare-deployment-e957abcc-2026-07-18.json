@@ -1,0 +1,55 @@
+{
+  "receiptVersion": 3,
+  "recordedAt": "2026-07-18T11:38:50Z",
+  "target": "https://proofforge-media.equinoxaifinance.workers.dev",
+  "result": "PASS",
+  "source": {
+    "publicRepository": "https://github.com/equinoxaifinance-rgb/proofforge-media",
+    "publicCommit": "976911f",
+    "buildId": "proofforge-2026-07-18.2-schema-v2",
+    "releaseReceiptSha256": "321100cf9c7d611ae39f7bbe237ce0bd3546ba3bb2b9fcc9f46c09f5c905eb53"
+  },
+  "deployment": {
+    "wranglerVersion": "4.112.0",
+    "worker": "proofforge-media",
+    "versionId": "e957abcc-efb9-4541-a606-8b13afbaf41c",
+    "containerApplicationId": "a037d6d9-5ccb-4df1-ac69-fd21b655367e",
+    "containerInstanceName": "public-single-replica-security-20260718",
+    "containerImageDigest": "sha256:ffd5139adf0b43a0801938f7ef4c76c4b388cd643e5aa183df96afe0612821fc",
+    "command": "npx wrangler deploy --strict",
+    "commandExitCode": 0,
+    "interpretation": "A versioned named instance forced replacement of the prior warm container; direct public readback served the new image."
+  },
+  "publicReadback": {
+    "healthStatus": 200,
+    "buildId": "proofforge-2026-07-18.2-schema-v2",
+    "capabilities": {
+      "demoReady": true,
+      "liveEnabled": false,
+      "liveReady": false,
+      "judgeSandboxEnabled": false,
+      "judgeSandboxReady": false,
+      "b2Ready": true,
+      "showcaseReady": true,
+      "maxRuns": 3,
+      "oneActiveRun": true,
+      "dollarCap": "not claimed; provider pricing is not assumed"
+    },
+    "securityUiTextPresent": true,
+    "showcaseStatus": 200,
+    "runId": "c2ab959e-ecd7-4b90-b152-9f1f23bc82b6",
+    "manifestCanonicalHash": "d780339a7a5db5b7493eea0b7c193b84b7692da41dc7be03bcf53183b4ca1c4d",
+    "assetStatus": 200,
+    "assetBytes": 1213775,
+    "assetSha256": "6d899e872d4ca78dea258dbf686f615303b9b2d4eff2522f39338128d1c0417b",
+    "storageUrlFieldsExposed": false,
+    "docsStatus": 404
+  },
+  "releaseGate": {
+    "steps": 20,
+    "controlPlaneTests": 31,
+    "proofForgeTests": 53,
+    "receiptSha256": "321100cf9c7d611ae39f7bbe237ce0bd3546ba3bb2b9fcc9f46c09f5c905eb53"
+  },
+  "secretsIncluded": false
+}
