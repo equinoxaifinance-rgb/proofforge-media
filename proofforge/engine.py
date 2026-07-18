@@ -531,6 +531,31 @@ class ProofForgeEngine:
             region=self.settings.b2_region,
             public_url_base=self.settings.b2_public_url_base or None,
         )
+
+        def preupload_local_asset(iteration_asset, source_path: Path) -> None:
+            """Upload the already-verified local provider file before sink indexing.
+
+            The provider emits a local file URI in the container. The generic
+            AssetTransfer worker intentionally treats local paths as an
+            allowlisted read, but that allowlist does not include every
+            provider-specific temporary directory. We read the same bounded
+            bytes here, upload them through the verified B2 backend, and then
+            point the asset at the durable key. ObjectStorageSink sees the
+            content-addressed object already exists and skips a second
+            transfer; manifest hashing and B2 fetch-back remain unchanged.
+            """
+            data = bounded_asset_bytes(source_path)
+            digest = hashlib.sha256(data).hexdigest()
+            if iteration_asset.sha256 and digest != iteration_asset.sha256:
+                raise RuntimeError("provider asset hash changed before B2 upload")
+            extension = source_path.suffix.lower() or ".bin"
+            key = f"proofforge/assets/{digest[:2]}/{digest[2:4]}/{digest}{extension}"
+            if not backend.exists(key):
+                backend.put(key, data, content_type=iteration_asset.media_type)
+            iteration_asset.sha256 = digest
+            iteration_asset.size_bytes = len(data)
+            iteration_asset.url = backend.get_durable_url(key)
+
         with ObjectStorageSink(
             backend, prefix="proofforge", key_strategy=KeyStrategy.CONTENT_ADDRESSABLE
         ) as sink:
@@ -546,6 +571,9 @@ class ProofForgeEngine:
                 iteration_asset.url = self._local_asset_path(
                     iteration_asset.url, extra_root=generation_dir
                 ).as_uri()
+                preupload_local_asset(iteration_asset, self._local_asset_path(
+                    iteration_asset.url, extra_root=generation_dir
+                ))
                 sink.write_run(iteration_result.run, iteration_result.manifest)
                 iteration_object_key = backend.key_from_url(iteration_asset.url)
                 if not iteration_object_key:

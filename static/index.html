@@ -57,7 +57,15 @@
         <label>Visual direction<textarea name="visual_style" minlength="3" required>Editorial product photography, strong geometric light, premium but human, high contrast.</textarea></label>
         <label class="check"><input type="checkbox" name="inject_weak_first" checked><span><b>Inject a weak first pass</b><small>Demonstrates automatic evaluation and revision without spending API credits.</small></span></label>
         <button class="forge-button" type="submit"><span>Run evidence pipeline</span><b>↗</b></button>
-        <p class="mode-note">Public mode uses Genblaze's deterministic provider. Live generation stays operator-locked until OpenAI and B2 credentials are configured.</p>
+        <fieldset class="judge-access" id="judge-access">
+          <legend>JUDGE LIVE LANE</legend>
+          <p class="mode-note">A temporary judge account unlocks real OpenAI generation and B2 persistence. It expires automatically and allows at most three runs.</p>
+          <div class="field-row"><label>Username<input id="judge-username" autocomplete="username"></label><label>Password<input id="judge-password" type="password" autocomplete="current-password"></label></div>
+          <div class="run-actions"><button class="forge-button secondary" id="judge-login" type="button">Sign in for live lane</button><button class="forge-button secondary" id="judge-logout" type="button" hidden>Sign out</button></div>
+          <p id="judge-status" class="review-status" role="status" aria-live="polite"></p>
+          <label id="mode-wrap" hidden>Execution mode<select id="execution-mode"><option value="demo">Public deterministic demo</option><option value="live">Live OpenAI + B2 (judge session)</option></select></label>
+        </fieldset>
+        <p class="mode-note">Public mode is deterministic and synthetic. The live lane appears only after a successful judge sign-in.</p>
       </form>
 
       <section class="run-panel" aria-live="polite">

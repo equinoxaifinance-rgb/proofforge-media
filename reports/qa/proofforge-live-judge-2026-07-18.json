@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "service": "proofforge-media",
+  "publicUrl": "https://proofforge-media.equinoxaifinance.workers.dev",
+  "workerVersion": "a8e872c8-4204-47d4-91ab-ea91b1370acc",
+  "containerImageDigest": "sha256:c9791e552ff3f058055526cdbeb2e92106fd81ddfd3027cc0b0b0e564ab3bf7f",
+  "healthReadback": {
+    "status": "ok",
+    "buildId": "proofforge-2026-07-18.2-schema-v2",
+    "database": "ok"
+  },
+  "capabilitiesReadback": {
+    "liveEnabled": true,
+    "liveReady": true,
+    "judgeSandboxEnabled": true,
+    "judgeSandboxReady": true,
+    "b2Ready": true,
+    "dollarCap": "not claimed; provider pricing is not assumed"
+  },
+  "securityReceipts": {
+    "wrongPassword": 401,
+    "unauthenticatedLivePost": 401,
+    "validJudgeLogin": 200,
+    "durableLedger": "JudgeLedger Durable Object; session hashes only",
+    "guards": ["five failed logins per IP/15m", "1800s session TTL", "3 runs/session", "6 runs/ledger", "one active run", "idempotent reservations"]
+  },
+  "providerReceipts": [
+    {
+      "runId": "741d796f-ddc8-4f3d-8333-2650e7a90f18",
+      "status": "failed",
+      "error": "RuntimeError: live asset did not meet the configured quality threshold",
+      "meaning": "OpenAI generation and evaluator completed; the 0.90 quality gate correctly refused publication."
+    },
+    {
+      "runId": "cba1b7d9-6b33-4b5b-9bb5-177e8130c381",
+      "status": "failed",
+      "error": "SinkError: asset transfer failed; manifest was not uploaded",
+      "meaning": "Diagnosed and fixed by direct upload of verified local provider bytes; independent B2 put/get/delete diagnostic passed."
+    },
+    {
+      "runId": "d280d210-4e5b-4e68-8373-615bc2188c6b",
+      "status": "failed",
+      "error": "JSONDecodeError: evaluator returned an empty/non-JSON response",
+      "meaning": "Provider/evaluator resilience remains yellow; no asset or manifest was published."
+    }
+  ],
+  "releaseGate": {
+    "receiptSha256": "5c441abe6f5d40c7d929fb30dd0c3943d40da7709865222557325c54f916ca40",
+    "steps": 20,
+    "exitCode": 0
+  },
+  "accessDate": "2026-07-18"
+}

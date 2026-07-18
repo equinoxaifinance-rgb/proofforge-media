@@ -7,10 +7,18 @@ const heading = document.querySelector("#run-heading");
 const approveButton = document.querySelector("#approve-button");
 const bundleButton = document.querySelector("#bundle-button");
 const reviewStatus = document.querySelector("#review-status");
+const judgeLogin = document.querySelector("#judge-login");
+const judgeLogout = document.querySelector("#judge-logout");
+const judgeStatus = document.querySelector("#judge-status");
+const judgeUsername = document.querySelector("#judge-username");
+const judgePassword = document.querySelector("#judge-password");
+const modeWrap = document.querySelector("#mode-wrap");
+const executionMode = document.querySelector("#execution-mode");
 let currentRun = null;
 let currentAccessToken = null;
 let currentAssetObjectUrl = null;
 let isSubmitting = false;
+let judgeSignedIn = false;
 const demoSessionKey = (() => {
   const existing = sessionStorage.getItem("proofforge-demo-session");
   if (existing) return existing;
@@ -139,13 +147,14 @@ form.addEventListener("submit", async (event) => {
   errorPanel.hidden = true;
   heading.textContent = "Genblaze is evaluating the brief...";
   try {
+    const mode = executionMode?.value === "live" && judgeSignedIn ? "live" : "demo";
     const response = await fetch("/api/runs", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "X-Proofforge-Idempotency-Key": demoSessionKey
+        "X-Proofforge-Idempotency-Key": mode === "live" ? `${demoSessionKey}-live` : demoSessionKey
       },
-      body: JSON.stringify({mode: "demo", brief: briefFromForm()})
+      body: JSON.stringify({mode, brief: briefFromForm()})
     });
     const payload = await response.json();
     if (!response.ok) throw new Error(payload.detail || "Could not start the pipeline.");
@@ -156,6 +165,44 @@ form.addEventListener("submit", async (event) => {
   } finally {
     setBusy(false);
   }
+});
+
+judgeLogin?.addEventListener("click", async () => {
+  judgeLogin.disabled = true;
+  judgeStatus.textContent = "Checking temporary judge access…";
+  try {
+    const response = await fetch("/api/judge/login", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({username: judgeUsername.value, password: judgePassword.value})
+    });
+    const payload = await response.json();
+    if (!response.ok) throw new Error(payload.detail || "Judge login failed.");
+    judgeSignedIn = true;
+    modeWrap.hidden = false;
+    judgeLogout.hidden = false;
+    judgeLogin.hidden = true;
+    judgeUsername.disabled = true;
+    judgePassword.disabled = true;
+    judgeStatus.textContent = `Live lane enabled for this browser session; ${payload.maxRuns} run allowance.`;
+  } catch (error) {
+    judgeStatus.textContent = error.message;
+    judgeLogin.disabled = false;
+  }
+});
+
+judgeLogout?.addEventListener("click", async () => {
+  await fetch("/api/judge/logout", {method: "POST"});
+  judgeSignedIn = false;
+  modeWrap.hidden = true;
+  executionMode.value = "demo";
+  judgeLogout.hidden = true;
+  judgeLogin.hidden = false;
+  judgeLogin.disabled = false;
+  judgeUsername.disabled = false;
+  judgePassword.disabled = false;
+  judgePassword.value = "";
+  judgeStatus.textContent = "Signed out. Live generation is locked again.";
 });
 
 approveButton.addEventListener("click", async () => {

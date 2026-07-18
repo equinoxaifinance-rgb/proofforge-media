@@ -17,6 +17,10 @@
       {
         "name": "PROOFFORGE_CONTAINER",
         "class_name": "ProofForgeContainer"
+      },
+      {
+        "name": "PROOFFORGE_JUDGE_LEDGER",
+        "class_name": "JudgeLedger"
       }
     ]
   },
@@ -24,6 +28,10 @@
     {
       "tag": "v1",
       "new_sqlite_classes": ["ProofForgeContainer"]
+    },
+    {
+      "tag": "v2",
+      "new_sqlite_classes": ["JudgeLedger"]
     }
   ],
   "observability": {

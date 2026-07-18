@@ -18,6 +18,11 @@ test("routes every judge request to one named container", () => {
   assert.match(source, /headers\.set\("X-Proofforge-Client-IP", clientIp\)/);
   assert.match(source, /new Request\(request, \{ headers \}\)/);
   assert.match(source, /PROOFFORGE_TRUST_EDGE_CLIENT_IP: "true"/);
+  assert.match(source, /class JudgeLedger extends DurableObject/);
+  assert.match(source, /PROOFFORGE_JUDGE_LEDGER/);
+  assert.match(source, /\/api\/judge\/login/);
+  assert.match(source, /\/authorize/);
+  assert.match(source, /Max-Age=900/);
 });
 
 test("passes required live credentials only through Worker secrets", () => {
@@ -30,6 +35,8 @@ test("passes required live credentials only through Worker secrets", () => {
     "PROOFFORGE_OPERATOR_TOKEN",
     "PROOFFORGE_SIGNING_KEY",
     "PROOFFORGE_JUDGE_CAPABILITY_KEY"
+    ,"PROOFFORGE_JUDGE_USERNAME"
+    ,"PROOFFORGE_JUDGE_PASSWORD"
   ]) {
     assert.match(source, new RegExp(`value\\(\\"${name}\\"`));
     assert.equal(JSON.stringify(config).includes(name), false);
