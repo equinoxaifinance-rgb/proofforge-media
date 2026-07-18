@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import logging
+import secrets
 import sqlite3
 import threading
 import time
@@ -91,6 +92,28 @@ class RunStore:
                     publication_error TEXT,
                     created_at TEXT NOT NULL
                 );
+                CREATE TABLE IF NOT EXISTS judge_capabilities (
+                    jti TEXT PRIMARY KEY,
+                    token_hash TEXT NOT NULL,
+                    expires_at INTEGER NOT NULL,
+                    max_runs INTEGER NOT NULL,
+                    label TEXT NOT NULL,
+                    redeemed_at INTEGER
+                );
+                CREATE TABLE IF NOT EXISTS judge_sessions (
+                    session_id TEXT PRIMARY KEY,
+                    capability_jti TEXT NOT NULL REFERENCES judge_capabilities(jti),
+                    expires_at INTEGER NOT NULL,
+                    max_runs INTEGER NOT NULL,
+                    runs_used INTEGER NOT NULL DEFAULT 0,
+                    active_run_id TEXT,
+                    created_at INTEGER NOT NULL
+                );
+                CREATE TABLE IF NOT EXISTS judge_runs (
+                    run_id TEXT PRIMARY KEY REFERENCES runs(id),
+                    session_id TEXT NOT NULL REFERENCES judge_sessions(session_id),
+                    reserved_at INTEGER NOT NULL
+                );
                 """
             )
             columns = {row["name"] for row in connection.execute("PRAGMA table_info(reviews)")}
@@ -102,6 +125,7 @@ class RunStore:
                 except sqlite3.OperationalError as error:
                     if "duplicate column name" not in str(error).lower():
                         raise
+
             if "publication_status" not in columns:
                 try:
                     connection.execute(
@@ -120,6 +144,115 @@ class RunStore:
                     if "duplicate column name" not in str(error).lower():
                         raise
 
+    def register_judge_capability(
+        self, jti: str, token_hash: str, expires_at: int, max_runs: int, label: str
+    ) -> None:
+        with self.connect() as connection:
+            connection.execute(
+                "INSERT INTO judge_capabilities "
+                "(jti, token_hash, expires_at, max_runs, label) VALUES (?, ?, ?, ?, ?)",
+                (jti, token_hash, expires_at, max_runs, label),
+            )
+
+    def redeem_judge_capability(
+        self,
+        jti: str,
+        token_hash: str,
+        session_id: str,
+        expires_at: int,
+        max_runs: int,
+        now: int,
+    ) -> str:
+        with self.connect() as connection:
+            row = connection.execute(
+                "SELECT token_hash, expires_at, redeemed_at FROM judge_capabilities WHERE jti = ?",
+                (jti,),
+            ).fetchone()
+            if row is None or not secrets.compare_digest(row["token_hash"], token_hash):
+                return "invalid"
+            if row["redeemed_at"] is not None:
+                return "redeemed"
+            if row["expires_at"] <= now:
+                return "expired"
+            cursor = connection.execute(
+                "UPDATE judge_capabilities SET redeemed_at = ? "
+                "WHERE jti = ? AND token_hash = ? AND redeemed_at IS NULL AND expires_at > ?",
+                (now, jti, token_hash, now),
+            )
+            if cursor.rowcount != 1:
+                return "redeemed"
+            connection.execute(
+                "INSERT INTO judge_sessions "
+                "(session_id, capability_jti, expires_at, max_runs, created_at) "
+                "VALUES (?, ?, ?, ?, ?)",
+                (session_id, jti, expires_at, max_runs, now),
+            )
+        return "ok"
+
+    def reserve_judge_run(self, session_id: str, run_id: str, now: int) -> str:
+        """Atomically spend one judge run and enforce one active run per session."""
+        with self.connect() as connection:
+            session = connection.execute(
+                "SELECT expires_at, max_runs, runs_used, active_run_id "
+                "FROM judge_sessions WHERE session_id = ?",
+                (session_id,),
+            ).fetchone()
+            if session is None:
+                return "invalid"
+            existing = connection.execute(
+                "SELECT 1 FROM judge_runs WHERE run_id = ? AND session_id = ?",
+                (run_id, session_id),
+            ).fetchone()
+            if existing is not None:
+                return "existing"
+            if session["expires_at"] <= now:
+                return "expired"
+            active_run_id = session["active_run_id"]
+            if active_run_id:
+                active = connection.execute(
+                    "SELECT status FROM runs WHERE id = ?", (active_run_id,)
+                ).fetchone()
+                if active is not None and active["status"] in {"queued", "running"}:
+                    return "active"
+                connection.execute(
+                    "UPDATE judge_sessions SET active_run_id = NULL WHERE session_id = ?",
+                    (session_id,),
+                )
+            if session["runs_used"] >= session["max_runs"]:
+                return "quota"
+            connection.execute(
+                "INSERT INTO judge_runs (run_id, session_id, reserved_at) VALUES (?, ?, ?)",
+                (run_id, session_id, now),
+            )
+            connection.execute(
+                "UPDATE judge_sessions SET runs_used = runs_used + 1, active_run_id = ? "
+                "WHERE session_id = ?",
+                (run_id, session_id),
+            )
+        return "reserved"
+
+    def release_judge_run(self, run_id: str) -> None:
+        with self.connect() as connection:
+            connection.execute(
+                "UPDATE judge_sessions SET active_run_id = NULL "
+                "WHERE active_run_id = ?",
+                (run_id,),
+            )
+
+    def judge_session_authorizes_run(self, session_id: str, run_id: str, now: int) -> str:
+        with self.connect() as connection:
+            row = connection.execute(
+                "SELECT sessions.expires_at FROM judge_sessions sessions "
+                "JOIN judge_runs ON judge_runs.session_id = sessions.session_id "
+                "JOIN runs ON runs.id = judge_runs.run_id "
+                "WHERE sessions.session_id = ? AND judge_runs.run_id = ?",
+                (session_id, run_id),
+            ).fetchone()
+        if row is None:
+            return "invalid"
+        if row["expires_at"] <= now:
+            return "expired"
+        return "ok"
     def _recover_interrupted_runs(self) -> None:
         for attempt in range(LOCK_RETRY_ATTEMPTS):
             try:

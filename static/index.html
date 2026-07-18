@@ -76,8 +76,17 @@
       </section>
     </section>
 
+    <section class="security-proof" id="security" aria-labelledby="security-title">
+      <div class="section-label"><span>03</span><div><p>SECURITY IS A FEATURE</p><h2 id="security-title">Paid paths fail closed.</h2></div></div>
+      <div class="security-proof-grid">
+        <article><b>SCOPED</b><h3>Judge access is temporary.</h3><p>A judge capability is exchanged once into a short-lived session. It can read only its own runs and cannot list, review, publish, or administer.</p></article>
+        <article><b>BOUNDED</b><h3>Spend has a hard ceiling.</h3><p>Each session allows at most three runs and one active run. Asset, request-body, timeout, and provider controls remain in force; no dollar cap is claimed without provider metering.</p></article>
+        <article><b>VERIFIABLE</b><h3>Every green light has a receipt.</h3><p>Capability hashes, atomic redemption, HMAC signatures, run reservations, and the public fail-closed setting are testable evidence—not a trust-me banner.</p></article>
+      </div>
+    </section>
+
     <section class="architecture">
-      <div class="section-label"><span>03</span><div><p>WHY IT IS DIFFERENT</p><h2>Failure is part of the demo.</h2></div></div>
+      <div class="section-label"><span>04</span><div><p>WHY IT IS DIFFERENT</p><h2>Failure is part of the demo.</h2></div></div>
       <div class="architecture-grid"><article><b>01</b><h3>Generate</h3><p>Genblaze normalizes provider and model execution into one traceable run.</p></article><article><b>02</b><h3>Evaluate</h3><p>A quality gate treats the image and brief as untrusted data, then scores the output.</p></article><article><b>03</b><h3>Revise</h3><p>Feedback flows into the next prompt with parent-run lineage preserved.</p></article><article><b>04</b><h3>Persist</h3><p>Authorized live runs store every iteration under content-addressed B2 keys, then fetch every asset back to verify its hash.</p></article><article><b>05</b><h3>Review</h3><p>Demo self-reviews are unverified; authenticated live approvals are separate audit events.</p></article><article><b>06</b><h3>Export</h3><p>One access-controlled bundle contains the brief, receipt, final manifest, and verified final asset; live receipts also expose the complete stored lineage.</p></article></div>
     </section>
   </main>

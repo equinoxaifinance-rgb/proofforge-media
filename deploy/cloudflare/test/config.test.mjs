@@ -9,7 +9,10 @@ test("routes every judge request to one named container", () => {
   assert.equal(config.containers.length, 1);
   assert.equal(config.containers[0].max_instances, 1);
   assert.equal(config.containers[0].instance_type, "lite");
-  assert.match(source, /getContainer\(workerEnv\.PROOFFORGE_CONTAINER, "public-single-replica"\)/);
+  assert.match(
+    source,
+    /getContainer\(\s*workerEnv\.PROOFFORGE_CONTAINER,\s*"public-single-replica-security-20260718"\s*\)/
+  );
   assert.match(source, /headers\.delete\("X-Proofforge-Client-IP"\)/);
   assert.match(source, /request\.headers\.get\("CF-Connecting-IP"\)/);
   assert.match(source, /headers\.set\("X-Proofforge-Client-IP", clientIp\)/);
@@ -25,7 +28,8 @@ test("passes required live credentials only through Worker secrets", () => {
     "B2_BUCKET",
     "B2_REGION",
     "PROOFFORGE_OPERATOR_TOKEN",
-    "PROOFFORGE_SIGNING_KEY"
+    "PROOFFORGE_SIGNING_KEY",
+    "PROOFFORGE_JUDGE_CAPABILITY_KEY"
   ]) {
     assert.match(source, new RegExp(`value\\(\\"${name}\\"`));
     assert.equal(JSON.stringify(config).includes(name), false);

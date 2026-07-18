@@ -23,6 +23,10 @@ class Settings:
     image_model: str
     image_fallback_model: str
     judge_model: str
+    judge_sandbox_enabled: bool
+    judge_capability_key: str
+    judge_capability_ttl_seconds: int
+    judge_capability_max_runs: int
 
     @property
     def b2_ready(self) -> bool:
@@ -44,6 +48,14 @@ class Settings:
                 self.b2_ready,
                 self.signing_key_persistent,
             ]
+        )
+
+    @property
+    def judge_sandbox_ready(self) -> bool:
+        return bool(
+            self.judge_sandbox_enabled
+            and self.live_ready
+            and len(self.judge_capability_key) >= 32
         )
 
 
@@ -73,6 +85,18 @@ def load_settings(data_dir: Path | None = None) -> Settings:
     configured_dir = data_dir or Path(os.getenv("PROOFFORGE_DATA_DIR", "data"))
     configured_dir.mkdir(parents=True, exist_ok=True)
     signing_key, signing_key_persistent = _load_or_create_signing_key(configured_dir)
+    judge_capability_key = os.getenv("PROOFFORGE_JUDGE_CAPABILITY_KEY", "").strip()
+    if judge_capability_key and len(judge_capability_key) < 32:
+        raise RuntimeError("configured judge capability key must be at least 32 characters")
+    try:
+        judge_ttl = int(os.getenv("PROOFFORGE_JUDGE_TTL_SECONDS", "1800"))
+        judge_max_runs = int(os.getenv("PROOFFORGE_JUDGE_MAX_RUNS", "3"))
+    except ValueError as error:
+        raise RuntimeError("judge TTL and run quota must be integers") from error
+    if not 60 <= judge_ttl <= 1800:
+        raise RuntimeError("judge TTL must be between 60 and 1800 seconds")
+    if not 1 <= judge_max_runs <= 3:
+        raise RuntimeError("judge maximum runs must be between 1 and 3")
     return Settings(
         data_dir=configured_dir.resolve(),
         live_enabled=os.getenv("PROOFFORGE_ENABLE_LIVE", "false").lower() == "true",
@@ -91,4 +115,9 @@ def load_settings(data_dir: Path | None = None) -> Settings:
         image_model=os.getenv("PROOFFORGE_IMAGE_MODEL", "gpt-image-2"),
         image_fallback_model=os.getenv("PROOFFORGE_IMAGE_FALLBACK_MODEL", "gpt-image-1.5"),
         judge_model=os.getenv("PROOFFORGE_JUDGE_MODEL", "gpt-5.6-terra"),
+        judge_sandbox_enabled=os.getenv("PROOFFORGE_ENABLE_JUDGE_SANDBOX", "false").lower()
+        == "true",
+        judge_capability_key=judge_capability_key,
+        judge_capability_ttl_seconds=judge_ttl,
+        judge_capability_max_runs=judge_max_runs,
     )

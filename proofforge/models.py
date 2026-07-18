@@ -76,3 +76,13 @@ class ReviewRequest(StrictModel):
     approved: bool
     reviewer: str = Field(min_length=2, max_length=80)
     notes: str = Field(default="", max_length=800)
+
+
+class JudgeExchangeRequest(StrictModel):
+    capability: str = Field(min_length=32, max_length=4096)
+
+
+class JudgeIssueRequest(StrictModel):
+    label: str = Field(default="judge", min_length=2, max_length=80)
+    ttl_seconds: int = Field(default=1800, ge=60, le=1800)
+    max_runs: int = Field(default=3, ge=1, le=3)

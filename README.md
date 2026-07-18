@@ -95,18 +95,26 @@ deployment uses the owner-approved Workers Paid plan. It creates only the isolat
 Copy `.env.example` into your secret manager; do not commit the populated file. Required:
 
 - `PROOFFORGE_ENABLE_LIVE=true`
+- `PROOFFORGE_ENABLE_JUDGE_SANDBOX=true` only on a separately isolated judge host
 - `PROOFFORGE_OPERATOR_TOKEN`: at least 32 random characters
 - `PROOFFORGE_SIGNING_KEY`: independent value of at least 32 random characters
+- `PROOFFORGE_JUDGE_CAPABILITY_KEY`: a third independent value of at least 32 random characters
 - `OPENAI_API_KEY`
 - `B2_KEY_ID`, `B2_APP_KEY`, `B2_BUCKET`, and the correct `B2_REGION`
 - optional `B2_PUBLIC_URL_BASE`
 
-Live generation is accepted only with `X-Proofforge-Key`. Demo run tokens cannot authorize a
-live run or verified approval. Never expose the operator token or B2 application key in the
-browser. Judges use the public local workflow plus sanitized receipts from an operator-created
-live run; they are never given an unlimited paid-generation credential.
+Live generation is accepted with `X-Proofforge-Key` for the operator or with a short-lived,
+one-time exchanged judge capability. A judge session is limited to at most three runs, one
+active run, and its expiry; it cannot list runs, review, publish, or administer the system.
+The capability is stored only as a hash and redemption is atomic in SQLite. Because Cloudflare
+Container disks are ephemeral, this sandbox must not be advertised as a durable one-time
+credential until an external durable state binding is provisioned and tested. Never expose the
+operator token or B2 application key in the browser. A dollar cap is not claimed because
+provider pricing is not assumed; the hard controls are run, time, and asset quotas plus the
+owner's provider account budget/alert.
 
-The judge deployment sets `PROOFFORGE_ENABLE_LIVE=false`, omits `OPENAI_API_KEY`, and uses a
+The public judge deployment sets `PROOFFORGE_ENABLE_LIVE=false` and
+`PROOFFORGE_ENABLE_JUDGE_SANDBOX=false`, omits `OPENAI_API_KEY`, and uses a
 separate Backblaze key limited to `listFiles`/`readFiles` for the `proofforge/` prefix. The
 write/delete pipeline credential is never installed on the public host.
 

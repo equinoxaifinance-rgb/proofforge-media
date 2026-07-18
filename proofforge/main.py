@@ -21,7 +21,15 @@ from fastapi.staticfiles import StaticFiles
 from .config import load_settings
 from .database import RunStore
 from .engine import PIPELINE_VERSION, ProofForgeEngine, bounded_asset_bytes, brief_hash
-from .models import ReviewRequest, RunRequest
+from .judge import (
+    JudgeTokenError,
+    issue_capability,
+    issue_session,
+    redeem_capability,
+    token_hash,
+    verify_session,
+)
+from .models import JudgeExchangeRequest, JudgeIssueRequest, ReviewRequest, RunRequest
 from .showcase import B2ShowcaseStore
 
 APP_ROOT = Path(__file__).resolve().parents[1]
@@ -95,6 +103,23 @@ def create_app(
             settings.operator_token and key and secrets.compare_digest(key, settings.operator_token)
         )
 
+    def judge_claims(session_token: str | None):
+        if not settings.judge_sandbox_ready or not session_token:
+            raise HTTPException(status_code=401, detail="valid judge session required")
+        try:
+            return verify_session(session_token, settings.judge_capability_key)
+        except JudgeTokenError as error:
+            raise HTTPException(status_code=401, detail="valid judge session required") from error
+
+    def judge_status_error(result: str) -> HTTPException:
+        if result in {"invalid", "expired", "redeemed"}:
+            return HTTPException(status_code=401, detail="judge capability is invalid or expired")
+        if result == "active":
+            return HTTPException(status_code=409, detail="judge session already has an active run")
+        if result == "quota":
+            return HTTPException(status_code=429, detail="judge session run quota exhausted")
+        return HTTPException(status_code=409, detail="judge capability could not be redeemed")
+
     def demo_client_key(request: Request) -> str:
         if settings.trust_edge_client_ip:
             edge_value = request.headers.get("x-proofforge-client-ip", "").strip()
@@ -114,12 +139,21 @@ def create_app(
         run: dict,
         run_key: str | None,
         operator_key: str | None,
+        judge_session: str | None = None,
     ) -> bool:
         operator = is_operator(operator_key)
         if run["mode"] == "live":
-            if not operator:
-                raise HTTPException(status_code=401, detail="operator authorization required")
-            return True
+            if operator:
+                return True
+            claims = judge_claims(judge_session)
+            authorization = store.judge_session_authorizes_run(
+                claims.token_id, run["id"], int(time.time())
+            )
+            if authorization != "ok":
+                raise HTTPException(
+                    status_code=401, detail="judge session is not authorized for run"
+                )
+            return False
         expected = run_access_token(run["id"])
         if not run_key or not secrets.compare_digest(run_key, expected):
             if not operator:
@@ -192,9 +226,22 @@ def create_app(
             "pipelineVersion": PIPELINE_VERSION,
             "liveEnabled": settings.live_enabled,
             "liveReady": settings.live_ready,
+            "judgeSandboxEnabled": settings.judge_sandbox_enabled,
+            "judgeSandboxReady": settings.judge_sandbox_ready,
+            "judgeSandbox": {
+                "scope": "judge-sandbox",
+                "ttlSeconds": settings.judge_capability_ttl_seconds,
+                "maxRuns": settings.judge_capability_max_runs,
+                "oneActiveRun": True,
+                "operatorApprovalRequired": True,
+                "dollarCap": "not claimed; provider pricing is not assumed",
+            },
             "b2Ready": settings.b2_ready,
             "showcaseReady": showcase_ready,
-            "runAccess": "persistent HMAC-scoped demo keys; operator key required for live runs",
+            "runAccess": (
+                "persistent HMAC-scoped demo keys; operator key or one-time bounded judge session "
+                "for live reads"
+            ),
             "provider": "OpenAI via Genblaze",
             "models": [
                 settings.image_model,
@@ -288,6 +335,70 @@ def create_app(
             return Response(content=asset_bytes, media_type=media_type)
         return Response(content=asset_bytes, media_type=media_type)
 
+    @application.post("/api/judge/issue")
+    def issue_judge(
+        request: JudgeIssueRequest,
+        x_proofforge_key: str | None = Header(default=None),
+    ) -> dict:
+        if not is_operator(x_proofforge_key):
+            raise HTTPException(status_code=401, detail="operator authorization required")
+        if not settings.judge_sandbox_ready:
+            raise HTTPException(status_code=409, detail="judge sandbox is disabled or incomplete")
+        try:
+            token, claims = issue_capability(
+                settings.judge_capability_key,
+                ttl_seconds=min(request.ttl_seconds, settings.judge_capability_ttl_seconds),
+                max_runs=min(request.max_runs, settings.judge_capability_max_runs),
+                label=request.label,
+            )
+            store.register_judge_capability(
+                claims.token_id,
+                token_hash(token),
+                claims.expires_at,
+                claims.max_runs,
+                claims.label,
+            )
+        except (JudgeTokenError, ValueError) as error:
+            raise HTTPException(
+                status_code=409, detail="judge capability could not be issued"
+            ) from error
+        return {
+            "capability": token,
+            "scope": claims.scope,
+            "expiresAt": claims.expires_at,
+            "maxRuns": claims.max_runs,
+            "redemption": "one-time",
+        }
+
+    @application.post("/api/judge/exchange")
+    def exchange_judge(request: JudgeExchangeRequest) -> dict:
+        if not settings.judge_sandbox_ready:
+            raise HTTPException(status_code=409, detail="judge sandbox is disabled or incomplete")
+        try:
+            capability = redeem_capability(request.capability, settings.judge_capability_key)
+            session_token, session = issue_session(settings.judge_capability_key, capability)
+            result = store.redeem_judge_capability(
+                capability.token_id,
+                token_hash(request.capability),
+                session.token_id,
+                session.expires_at,
+                session.max_runs,
+                int(time.time()),
+            )
+        except JudgeTokenError as error:
+            raise HTTPException(
+                status_code=401, detail="judge capability is invalid or expired"
+            ) from error
+        if result != "ok":
+            raise judge_status_error(result)
+        return {
+            "session": session_token,
+            "scope": session.scope,
+            "expiresAt": session.expires_at,
+            "maxRuns": session.max_runs,
+            "oneActiveRun": True,
+        }
+
     @application.post("/api/runs", status_code=status.HTTP_202_ACCEPTED)
     def create_run(
         request: RunRequest,
@@ -295,6 +406,7 @@ def create_app(
         http_request: Request,
         x_proofforge_key: str | None = Header(default=None),
         x_proofforge_idempotency_key: str | None = Header(default=None),
+        x_proofforge_judge_session: str | None = Header(default=None),
     ) -> dict:
         if request.mode == "demo":
             client_key = demo_client_key(http_request)
@@ -323,19 +435,17 @@ def create_app(
                         detail="demo rate limit reached; retry after one minute",
                     )
                 window.append(now)
+        judge_session_id: str | None = None
         if request.mode == "live":
             if not settings.live_enabled:
                 raise HTTPException(status_code=409, detail="live mode is disabled")
-            if (
-                not settings.operator_token
-                or not x_proofforge_key
-                or not secrets.compare_digest(x_proofforge_key, settings.operator_token)
-            ):
-                raise HTTPException(status_code=401, detail="valid operator token required")
             if not settings.live_ready:
                 raise HTTPException(
                     status_code=409, detail="live provider or B2 configuration is incomplete"
                 )
+            if not is_operator(x_proofforge_key):
+                claims = judge_claims(x_proofforge_judge_session)
+                judge_session_id = claims.token_id
         digest = brief_hash(request.brief)
         storage_digest = digest
         if request.mode == "demo":
@@ -354,6 +464,10 @@ def create_app(
                 hashlib.sha256,
             ).hexdigest()
             storage_digest = hashlib.sha256(f"{digest}:{tenant_scope}".encode()).hexdigest()
+        elif judge_session_id:
+            storage_digest = hashlib.sha256(
+                f"{digest}:judge:{judge_session_id}".encode()
+            ).hexdigest()
         run, created = store.create_or_get(
             storage_digest, request.mode, request.brief.model_dump(mode="json")
         )
@@ -372,6 +486,14 @@ def create_app(
                 run = store.get(run["id"])
         if not created and run["status"] == "failed":
             retried = store.queue_retry(run["id"])
+        if judge_session_id:
+            reservation = store.reserve_judge_run(judge_session_id, run["id"], int(time.time()))
+            if reservation not in {"reserved", "existing"}:
+                if created:
+                    store.fail_run(
+                        run["id"], "judge quota denied before provider dispatch", "JudgeQuota"
+                    )
+                raise judge_status_error(reservation)
         if created or retried:
             event_type = "run.queued" if created else "run.requeued"
             store.add_event(
@@ -398,11 +520,12 @@ def create_app(
         run_id: str,
         x_proofforge_run_key: str | None = Header(default=None),
         x_proofforge_key: str | None = Header(default=None),
+        x_proofforge_judge_session: str | None = Header(default=None),
     ) -> dict:
         run = store.get(run_id)
         if run is None:
             raise HTTPException(status_code=404, detail="run not found")
-        require_run_access(run, x_proofforge_run_key, x_proofforge_key)
+        require_run_access(run, x_proofforge_run_key, x_proofforge_key, x_proofforge_judge_session)
         return run
 
     @application.get("/api/runs/{run_id}/manifest")
@@ -410,11 +533,12 @@ def create_app(
         run_id: str,
         x_proofforge_run_key: str | None = Header(default=None),
         x_proofforge_key: str | None = Header(default=None),
+        x_proofforge_judge_session: str | None = Header(default=None),
     ) -> dict:
         run = store.get(run_id)
         if run is None:
             raise HTTPException(status_code=404, detail="run not found")
-        require_run_access(run, x_proofforge_run_key, x_proofforge_key)
+        require_run_access(run, x_proofforge_run_key, x_proofforge_key, x_proofforge_judge_session)
         if run["status"] != "completed" or not run["result"]:
             raise HTTPException(status_code=409, detail="manifest is not available yet")
         return run["result"]["manifest"]
@@ -425,11 +549,16 @@ def create_app(
         request: ReviewRequest,
         x_proofforge_run_key: str | None = Header(default=None),
         x_proofforge_key: str | None = Header(default=None),
+        x_proofforge_judge_session: str | None = Header(default=None),
     ) -> dict:
         run = store.get(run_id)
         if run is None:
             raise HTTPException(status_code=404, detail="run not found")
-        operator = require_run_access(run, x_proofforge_run_key, x_proofforge_key)
+        operator = require_run_access(
+            run, x_proofforge_run_key, x_proofforge_key, x_proofforge_judge_session
+        )
+        if run["mode"] == "live" and not operator:
+            raise HTTPException(status_code=403, detail="operator approval is required")
         if run["status"] != "completed":
             raise HTTPException(status_code=409, detail="only completed runs can be reviewed")
         verified = bool(operator and run["mode"] == "live")
@@ -481,12 +610,15 @@ def create_app(
         run_id: str,
         x_proofforge_run_key: str | None = Header(default=None),
         x_proofforge_key: str | None = Header(default=None),
+        x_proofforge_judge_session: str | None = Header(default=None),
     ) -> StreamingResponse:
         with store.artifact_lock:
             run = store.get(run_id)
             if run is None:
                 raise HTTPException(status_code=404, detail="run not found")
-            require_run_access(run, x_proofforge_run_key, x_proofforge_key)
+            require_run_access(
+                run, x_proofforge_run_key, x_proofforge_key, x_proofforge_judge_session
+            )
             if run["status"] != "completed" or not run["result"]:
                 raise HTTPException(status_code=409, detail="evidence is not available yet")
             asset_bytes, _, local_name = verified_asset_payload(run)
@@ -508,12 +640,15 @@ def create_app(
         run_id: str,
         x_proofforge_run_key: str | None = Header(default=None),
         x_proofforge_key: str | None = Header(default=None),
+        x_proofforge_judge_session: str | None = Header(default=None),
     ) -> Response:
         with store.artifact_lock:
             run = store.get(run_id)
             if run is None:
                 raise HTTPException(status_code=404, detail="run not found")
-            require_run_access(run, x_proofforge_run_key, x_proofforge_key)
+            require_run_access(
+                run, x_proofforge_run_key, x_proofforge_key, x_proofforge_judge_session
+            )
             asset_bytes, media_type, _ = verified_asset_payload(run)
         return Response(content=asset_bytes, media_type=media_type)
 

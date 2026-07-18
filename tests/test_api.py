@@ -156,6 +156,107 @@ def test_live_mode_and_run_listing_are_operator_locked(tmp_path: Path, monkeypat
         assert response.status_code == 409
 
 
+def _enable_judge_sandbox(monkeypatch) -> None:
+    monkeypatch.setenv("PROOFFORGE_ENABLE_LIVE", "true")
+    monkeypatch.setenv("PROOFFORGE_ENABLE_JUDGE_SANDBOX", "true")
+    monkeypatch.setenv("PROOFFORGE_OPERATOR_TOKEN", "operator-token-000000000000000000")
+    monkeypatch.setenv("PROOFFORGE_SIGNING_KEY", "signing-key-000000000000000000000000")
+    monkeypatch.setenv("PROOFFORGE_JUDGE_CAPABILITY_KEY", "judge-key-000000000000000000000000")
+    monkeypatch.setenv("OPENAI_API_KEY", "test-openai-key")
+    monkeypatch.setenv("B2_KEY_ID", "test-b2-key")
+    monkeypatch.setenv("B2_APP_KEY", "test-b2-secret")
+    monkeypatch.setenv("B2_BUCKET", "test-bucket")
+
+
+def _live_payload(name: str) -> dict:
+    request = payload()
+    request["mode"] = "live"
+    request["brief"]["campaign_name"] = name
+    return request
+
+
+def test_judge_capability_is_one_time_scoped_and_quota_bound(tmp_path: Path, monkeypatch) -> None:
+    _enable_judge_sandbox(monkeypatch)
+    app = create_app(tmp_path, showcase_store=RecordingShowcaseStore())
+    # Keep this security test at the authorization boundary; no provider call is allowed.
+    app.state.engine.process = lambda run_id, brief, mode: None
+    operator = {"X-Proofforge-Key": "operator-token-000000000000000000"}
+    with TestClient(app) as client:
+        capabilities = client.get("/api/capabilities").json()
+        assert capabilities["judgeSandboxReady"] is True
+        issued = client.post(
+            "/api/judge/issue", headers=operator, json={"label": "Devpost judge", "max_runs": 3}
+        )
+        assert issued.status_code == 200
+        capability = issued.json()["capability"]
+        assert capability.startswith("pfj1.")
+        exchanged = client.post("/api/judge/exchange", json={"capability": capability})
+        assert exchanged.status_code == 200
+        session = exchanged.json()["session"]
+        assert (
+            client.post("/api/judge/exchange", json={"capability": capability}).status_code
+            == 401
+        )
+
+        first = client.post(
+            "/api/runs",
+            headers={"X-Proofforge-Judge-Session": session},
+            json=_live_payload("Judge campaign one"),
+        )
+        assert first.status_code == 202
+        first_run = first.json()["run"]["id"]
+        assert client.get(f"/api/runs/{first_run}").status_code == 401
+        assert (
+            client.get(
+                f"/api/runs/{first_run}",
+                headers={"X-Proofforge-Judge-Session": session},
+            ).status_code
+            == 200
+        )
+        assert client.post(
+            "/api/runs",
+            headers={"X-Proofforge-Judge-Session": session},
+            json=_live_payload("Judge campaign two"),
+        ).status_code == 409
+
+        # A terminal run releases the active-run lock but still spends its quota slot.
+        app.state.store.set_status(first_run, "failed", error="test terminal")
+        second = client.post(
+            "/api/runs",
+            headers={"X-Proofforge-Judge-Session": session},
+            json=_live_payload("Judge campaign two"),
+        )
+        assert second.status_code == 202
+        second_run = second.json()["run"]["id"]
+        app.state.store.set_status(second_run, "failed", error="test terminal")
+        third = client.post(
+            "/api/runs",
+            headers={"X-Proofforge-Judge-Session": session},
+            json=_live_payload("Judge campaign three"),
+        )
+        assert third.status_code == 202
+        third_run = third.json()["run"]["id"]
+        app.state.store.set_status(third_run, "failed", error="test terminal")
+        exhausted = client.post(
+            "/api/runs",
+            headers={"X-Proofforge-Judge-Session": session},
+            json=_live_payload("Judge campaign four"),
+        )
+        assert exhausted.status_code == 429
+        assert (
+            client.get("/api/runs", headers={"X-Proofforge-Judge-Session": session}).status_code
+            == 401
+        )
+        assert (
+            client.post(
+                f"/api/runs/{first_run}/review",
+                headers={"X-Proofforge-Judge-Session": session},
+                json={"approved": True, "reviewer": "Judge", "notes": "not operator"},
+            ).status_code
+            == 403
+        )
+
+
 def test_local_review_never_substitutes_for_durable_publication(
     tmp_path: Path, monkeypatch
 ) -> None:
