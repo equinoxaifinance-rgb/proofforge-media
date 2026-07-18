@@ -9,6 +9,9 @@ cross-restart retention.
 Cloudflare Containers require the Workers Paid plan. Do not upgrade or deploy without the
 account owner's explicit approval. Once approved, set each sensitive value with
 `wrangler secret put`; never add values to `wrangler.jsonc` or a committed environment file.
+The public judge host is intentionally read-only: live generation is disabled, no OpenAI key
+is installed, and its B2 key is separately limited to `listFiles`/`readFiles` for the
+`proofforge/` prefix.
 
 ```powershell
 npm ci
@@ -16,13 +19,16 @@ npm run check
 npx wrangler secret put PROOFFORGE_ENABLE_LIVE
 npx wrangler secret put PROOFFORGE_OPERATOR_TOKEN
 npx wrangler secret put PROOFFORGE_SIGNING_KEY
-npx wrangler secret put OPENAI_API_KEY
 npx wrangler secret put B2_KEY_ID
 npx wrangler secret put B2_APP_KEY
 npx wrangler secret put B2_BUCKET
 npx wrangler secret put B2_REGION
 npm run deploy
 ```
+
+Set `PROOFFORGE_ENABLE_LIVE` to the literal value `false`. The operator and signing values
+must be independent random secrets even though live generation is disabled. Do not reuse or
+install the write/delete pipeline key on this host.
 
 The deployment must then pass public health, demo pipeline, asset, manifest, evidence-bundle,
 restart/cold-start, security-header, and mobile-browser checks before it is a judge URL.

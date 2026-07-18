@@ -63,8 +63,8 @@ The source was copied to an isolated `<qa-cold>/devpost-autopilot-20260718-v5` d
 
 - The canonical current gate is `reports/qa/release-verify.receipt.json`, produced by
   `npm run release:verify` after 20/20 bounded steps, completed at
-  `2026-07-18T06:57:44.121Z` with transcript SHA-256
-  `91a68f667f46d084b34ec858dfa9333ff0e41de5405520de20f8975e3345f9b0`:
+  `2026-07-18T07:23:20.874Z` with transcript SHA-256
+  `495675f46832b3aa8ee0ee3778f3c093a8b11bd10907b642ba5f55c35af51490`:
   28 ContestPilot engine/control-plane tests; the ContestPilot production build and three
   render/asset/release-identity tests; ContestPilot lint and npm audit; 47 ProofForge tests
   with warnings treated as errors;
