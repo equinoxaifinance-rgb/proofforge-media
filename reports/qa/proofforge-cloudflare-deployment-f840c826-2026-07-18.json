@@ -1,0 +1,36 @@
+{
+  "receiptVersion": 4,
+  "recordedAt": "2026-07-18T20:32:41.3885964Z",
+  "target": "https://proofforge-media.equinoxaifinance.workers.dev",
+  "result": "PASS",
+  "source": {
+    "publicRepository": "https://github.com/equinoxaifinance-rgb/proofforge-media",
+    "publicCommit": "702bb0cbc5b9131164eb8c7ca22fdf4a47d44bcc",
+    "releaseReceiptSha256": "a620b184e4cf2d807c0151560664c27da6c4d5ba03d7d6d2a502360e4b405c7b"
+  },
+  "deployment": {
+    "wranglerVersion": "4.112.0",
+    "worker": "proofforge-media",
+    "versionId": "f840c826-86e6-43ad-a849-0b0a82df2d7e",
+    "containerApplicationId": "a037d6d9-5ccb-4df1-ac69-fd21b655367e",
+    "containerImageDigest": "sha256:b7a81d5b756c15c2afd0f22253a2b6ca2374241271a0b8fc0431a3226fafab21",
+    "command": "npm run deploy",
+    "commandExitCode": 0
+  },
+  "publicReadback": {
+    "healthStatus": 200,
+    "buildId": "proofforge-2026-07-18.2-schema-v2",
+    "capabilities": {
+      "liveEnabled": false,
+      "liveReady": false,
+      "b2Ready": true,
+      "showcaseReady": true
+    },
+    "newUiTextReadback": true,
+    "oldUiTextReadback": false,
+    "showcaseRunId": "c2ab959e-ecd7-4b90-b152-9f1f23bc82b6",
+    "assetBytes": 1213775,
+    "assetSha256": "6d899e872d4ca78dea258dbf686f615303b9b2d4eff2522f39338128d1c0417b"
+  },
+  "secretsIncluded": false
+}
