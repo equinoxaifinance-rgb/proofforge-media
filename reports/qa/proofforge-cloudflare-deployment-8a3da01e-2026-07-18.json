@@ -1,0 +1,50 @@
+{
+  "receiptVersion": 2,
+  "recordedAt": "2026-07-18T10:02:41Z",
+  "target": "https://proofforge-media.equinoxaifinance.workers.dev",
+  "result": "PASS_WITH_DOCUMENTED_WRANGLER_TRAILING_MESSAGE",
+  "source": {
+    "publicRepository": "https://github.com/equinoxaifinance-rgb/proofforge-media",
+    "publicCommit": "7799813",
+    "buildId": "proofforge-2026-07-18.2-schema-v2",
+    "releaseReceiptSha256": "bf315e168a48c5fc30b71ec414bb4748c5af43af0d8fe00dfd461bfeb0c23422"
+  },
+  "deployment": {
+    "wranglerVersion": "4.112.0",
+    "worker": "proofforge-media",
+    "versionId": "8a3da01e-63ce-4968-8561-d2b462346af1",
+    "containerApplicationId": "a037d6d9-5ccb-4df1-ac69-fd21b655367e",
+    "containerImageDigest": "sha256:b0d72f89a637c1c45a960bd7f0ac8afac453fd7b722393a6e439e2d32283d7d5",
+    "command": "npx wrangler deploy --strict",
+    "commandSha256": "ce2a188cd6dec00cd1720c7002626c8849f8636969d57f4be56e309e1857c484",
+    "commandExitCode": 0,
+    "trailingWranglerMessage": "no such manifest after SUCCESS",
+    "interpretation": "Direct public health, API, asset, and build-identity readback passed after rollout."
+  },
+  "publicReadback": {
+    "healthStatus": 200,
+    "buildId": "proofforge-2026-07-18.2-schema-v2",
+    "capabilities": {
+      "demoReady": true,
+      "liveEnabled": false,
+      "liveReady": false,
+      "b2Ready": true,
+      "showcaseReady": true
+    },
+    "showcaseStatus": 200,
+    "runId": "c2ab959e-ecd7-4b90-b152-9f1f23bc82b6",
+    "manifestCanonicalHash": "d780339a7a5db5b7493eea0b7c193b84b7692da41dc7be03bcf53183b4ca1c4d",
+    "assetStatus": 200,
+    "assetBytes": 1213775,
+    "assetSha256": "6d899e872d4ca78dea258dbf686f615303b9b2d4eff2522f39338128d1c0417b",
+    "storageUrlFieldsExposed": false,
+    "docsStatus": 404
+  },
+  "releaseGate": {
+    "steps": 20,
+    "controlPlaneTests": 31,
+    "proofForgeTests": 48,
+    "receiptSha256": "bf315e168a48c5fc30b71ec414bb4748c5af43af0d8fe00dfd461bfeb0c23422"
+  },
+  "secretsIncluded": false
+}
