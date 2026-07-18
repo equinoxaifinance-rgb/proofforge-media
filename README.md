@@ -134,7 +134,7 @@ round-trip, verified approval, empty-local-state B2 recovery, and durable public
 have receipts in
 `../../../reports/qa/RUNTIME-RECEIPTS.md` and
 `reports/integrations/PROOFFORGE-LIVE-RECEIPT.md` and
-`reports/qa/proofforge-cloudflare-deployment-8815bef5-2026-07-18.json` in the public release
+`reports/qa/proofforge-cloudflare-deployment-e957abcc-2026-07-18.json` in the public release
 repository. The durable app is https://proofforge-media.equinoxaifinance.workers.dev and the
 public MIT repository is https://github.com/equinoxaifinance-rgb/proofforge-media. Final video
 publication, rule acceptance, and final Devpost submission remain.

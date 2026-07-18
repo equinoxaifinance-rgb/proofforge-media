@@ -39,7 +39,7 @@ The source was copied to an isolated `<qa-cold>/devpost-autopilot-20260718-v5` d
 - Durable public URL: https://proofforge-media.equinoxaifinance.workers.dev. Cloudflare
   deployment version `8a3da01e-63ce-4968-8561-d2b462346af1` serves the current container
   image; exact deployment, recovery, API, and Lighthouse evidence is retained in
-  `reports/qa/proofforge-cloudflare-deployment-8a3da01e-2026-07-18.json`.
+  `reports/qa/proofforge-cloudflare-deployment-e957abcc-2026-07-18.json`.
 - Public browser QA forced a 58% first iteration and reached 95% on iteration two. Integrity
   displayed `VERIFIED`, the output was explicitly labeled local/synthetic, pipeline version
   was `2026-07-17.4`, and the browser console remained empty.

@@ -85,7 +85,7 @@ Machine-readable companion:
   `8815bef5-6e6a-4496-8182-0f243c30c22d` passed authenticated/unauthenticated API probes,
   exact showcase-byte readback, disabled-live-mode checks, malformed/oversized/injection
   rejection, and Lighthouse 1.0/1.0/1.0/1.0. See
-  `reports/qa/proofforge-cloudflare-deployment-8815bef5-2026-07-18.json`.
+  `reports/qa/proofforge-cloudflare-deployment-e957abcc-2026-07-18.json`.
 - The approved live run passed on its first 0.98 iteration, so the real provider did not need a
   revision. The deterministic public demo separately executes a failing first iteration and a
   passing revision; this is not represented as proof of a paid-provider revision.
