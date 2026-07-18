@@ -2,8 +2,8 @@
   "schemaVersion": 1,
   "service": "proofforge-media",
   "publicUrl": "https://proofforge-media.equinoxaifinance.workers.dev",
-  "workerVersion": "a8e872c8-4204-47d4-91ab-ea91b1370acc",
-  "containerImageDigest": "sha256:c9791e552ff3f058055526cdbeb2e92106fd81ddfd3027cc0b0b0e564ab3bf7f",
+  "workerVersion": "389f2f1a-bd94-44e9-ae8a-3db3ab18e038",
+  "containerImageDigest": "sha256:eeb3cf08f1d31b24ab1dfc72b9a3023d679dbdbfa4c6a8ea767735f95cbe0a00",
   "healthReadback": {
     "status": "ok",
     "buildId": "proofforge-2026-07-18.2-schema-v2",
@@ -45,7 +45,7 @@
     }
   ],
   "releaseGate": {
-    "receiptSha256": "5c441abe6f5d40c7d929fb30dd0c3943d40da7709865222557325c54f916ca40",
+    "receiptSha256": "aaa1f3a6cc58ada373043986d5979fd8ea23c6062dac4ade9f49849ef1164a3b",
     "steps": 20,
     "exitCode": 0
   },

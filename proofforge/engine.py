@@ -426,7 +426,7 @@ class ProofForgeEngine:
                 f"{json.dumps(brief.model_dump(mode='json'), ensure_ascii=True)}\n"
                 "UNTRUSTED BRIEF DATA END"
             )
-            response = evaluator_client.responses.create(
+            evaluation_request = dict(
                 model=self.settings.judge_model,
                 store=False,
                 max_output_tokens=500,
@@ -470,7 +470,33 @@ class ProofForgeEngine:
                     }
                 },
             )
-            assessment = json.loads(response.output_text)
+            assessment = None
+            evaluator_error = None
+            for evaluator_attempt in range(2):
+                try:
+                    response = evaluator_client.responses.create(**evaluation_request)
+                    raw_output = (response.output_text or "").strip()
+                    if not raw_output:
+                        raise ValueError("evaluator returned empty output")
+                    assessment = json.loads(raw_output)
+                    break
+                except Exception as error:  # noqa: BLE001 — retry one bounded provider hiccup
+                    evaluator_error = error
+                    if evaluator_attempt == 1:
+                        evaluation_receipts.append(
+                            {
+                                "model": self.settings.judge_model,
+                                "error": f"{type(error).__name__}: {error}",
+                                "attempts": 2,
+                            }
+                        )
+                        return EvaluationResult(
+                            passed=False,
+                            score=0.0,
+                            feedback="Evaluator response was empty or invalid after one retry.",
+                        )
+            if assessment is None:
+                raise RuntimeError(f"evaluator did not produce an assessment: {evaluator_error}")
             score = max(0.0, min(1.0, float(assessment["score"])))
             forbidden_terms_detected = [
                 str(item).strip()

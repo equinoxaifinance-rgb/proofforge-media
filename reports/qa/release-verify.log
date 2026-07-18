@@ -1,43 +1,43 @@
 ## ContestPilot engine tests
-startedAt=2026-07-18T22:11:48.195Z
-completedAt=2026-07-18T22:11:49.009Z
+startedAt=2026-07-18T22:24:27.226Z
+completedAt=2026-07-18T22:24:28.026Z
 command=C:\Program Files\nodejs\node.exe C:\Program Files\nodejs\node_modules\npm\bin\npm-cli.js test
 exitCode=0
 
 > devpost-contest-autopilot@1.0.0 test
 > node --test test/*.test.mjs
 
-✔ validates a researched contest (6.5713ms)
-✔ rejects look-alike Devpost hosts and timezone-free deadlines (0.9411ms)
-✔ rejects path traversal contest ids (0.4866ms)
-✔ rejects hostile types, impossible dates, and unsafe source URLs (0.5239ms)
-✔ ranking rejects malformed contest records instead of coercing them (1.0008ms)
-✔ blocks build when human eligibility confirmation is missing (0.4671ms)
-✔ blocks build when the exact deadline is not verified (0.2143ms)
-✔ blocks build until conflict exclusions are separately attested (0.3814ms)
-✔ enforces explicit residence exclusions and team-size limits (0.3459ms)
-✔ requires explicit new-work compliance when existing work is prohibited (0.3349ms)
-✔ blocks expired and in-person-only contests (0.2058ms)
-✔ ranks eligible preferred-theme contests above unresolved ones (0.6129ms)
-✔ case-study selection excludes the source contest and emits criterion evidence (0.6088ms)
-✔ entry verification rejects truthy strings and unreceipted test claims (1.3052ms)
-✔ entry verification rejects impossible, future, and unbound receipts (0.5687ms)
-✔ exports the same real ranking used by the command line (21.6554ms)
-✔ external campaign has a complete criterion-to-verification map (12.2485ms)
-✔ verified evidence always has a receipt (9.1618ms)
-✔ derives a reproducible snapshot time from researched records (5.4708ms)
-✔ content-bound verifier accepts the exact demo, commit, license, files, and video receipt (63.3016ms)
-✔ an arbitrary HTTP 200 demo page cannot satisfy release verification (9.6851ms)
-✔ wrong release identity, repository head, license, and public video title are named (10.5459ms)
-✔ redirects to private targets fail before any private fetch (8.1207ms)
-✔ video receipt rejects wrong upload, excessive duration, and missing audio (10.651ms)
-✔ empty and status-only demo expectations cannot become proof (11.6512ms)
-✔ IPv6 loopback and DNS-to-private targets fail before fetch (7.0969ms)
-✔ oversized JSON proof responses fail closed (12.4646ms)
-✔ release regeneration preserves Git metadata and removes generated residue (20.369ms)
-✔ release regeneration rejects unmarked or out-of-root targets (4.3032ms)
-✔ release layout permits only the release root Git metadata (4.8464ms)
-✔ ProofForge release layout still rejects generated runtime data (3.0448ms)
+✔ validates a researched contest (7.9197ms)
+✔ rejects look-alike Devpost hosts and timezone-free deadlines (0.8324ms)
+✔ rejects path traversal contest ids (0.2731ms)
+✔ rejects hostile types, impossible dates, and unsafe source URLs (0.3443ms)
+✔ ranking rejects malformed contest records instead of coercing them (1.0287ms)
+✔ blocks build when human eligibility confirmation is missing (0.5375ms)
+✔ blocks build when the exact deadline is not verified (0.2118ms)
+✔ blocks build until conflict exclusions are separately attested (0.263ms)
+✔ enforces explicit residence exclusions and team-size limits (0.3439ms)
+✔ requires explicit new-work compliance when existing work is prohibited (0.3653ms)
+✔ blocks expired and in-person-only contests (0.2076ms)
+✔ ranks eligible preferred-theme contests above unresolved ones (0.5106ms)
+✔ case-study selection excludes the source contest and emits criterion evidence (0.679ms)
+✔ entry verification rejects truthy strings and unreceipted test claims (1.5151ms)
+✔ entry verification rejects impossible, future, and unbound receipts (0.5849ms)
+✔ exports the same real ranking used by the command line (20.9629ms)
+✔ external campaign has a complete criterion-to-verification map (13.3397ms)
+✔ verified evidence always has a receipt (10.8867ms)
+✔ derives a reproducible snapshot time from researched records (4.9837ms)
+✔ content-bound verifier accepts the exact demo, commit, license, files, and video receipt (64.8255ms)
+✔ an arbitrary HTTP 200 demo page cannot satisfy release verification (9.5252ms)
+✔ wrong release identity, repository head, license, and public video title are named (6.8ms)
+✔ redirects to private targets fail before any private fetch (9.4026ms)
+✔ video receipt rejects wrong upload, excessive duration, and missing audio (6.9761ms)
+✔ empty and status-only demo expectations cannot become proof (9.5118ms)
+✔ IPv6 loopback and DNS-to-private targets fail before fetch (5.8014ms)
+✔ oversized JSON proof responses fail closed (12.9268ms)
+✔ release regeneration preserves Git metadata and removes generated residue (19.492ms)
+✔ release regeneration rejects unmarked or out-of-root targets (5.3444ms)
+✔ release layout permits only the release root Git metadata (5.4535ms)
+✔ ProofForge release layout still rejects generated runtime data (3.2501ms)
 ℹ tests 31
 ℹ suites 0
 ℹ pass 31
@@ -45,13 +45,13 @@ exitCode=0
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 301.421
+ℹ duration_ms 288.4256
 
 
 
 ## ContestPilot production tests
-startedAt=2026-07-18T22:11:49.009Z
-completedAt=2026-07-18T22:11:57.680Z
+startedAt=2026-07-18T22:24:28.027Z
+completedAt=2026-07-18T22:24:35.943Z
 command=C:\Program Files\nodejs\node.exe C:\Program Files\nodejs\node_modules\npm\bin\npm-cli.js test
 exitCode=0
 
@@ -73,26 +73,26 @@ Dashboard snapshot exported to <repo>\entries\openai-build-week-2026\site\app\da
 [34m[1/5] analyze client references...[39m
 [2Ktransforming...✓ 132 modules transformed.
 rendering chunks...
-[32m✓ built in 766ms[39m
+[32m✓ built in 695ms[39m
 [34m[2/5] analyze server references...[39m
 [2Ktransforming...✓ 49 modules transformed.
 rendering chunks...
-[32m✓ built in 113ms[39m
+[32m✓ built in 96ms[39m
 [34m[3/5] build rsc environment...[39m
 [2Ktransforming...✓ 138 modules transformed.
 rendering chunks...
 computing gzip size...
-[32m✓ built in 458ms[39m
+[32m✓ built in 676ms[39m
 [34m[4/5] build client environment...[39m
 [2Ktransforming...✓ 57 modules transformed.
 rendering chunks...
 computing gzip size...
-[32m✓ built in 279ms[39m
+[32m✓ built in 324ms[39m
 [34m[5/5] build ssr environment...[39m
 [2Ktransforming...✓ 55 modules transformed.
 rendering chunks...
 computing gzip size...
-[32m✓ built in 280ms[39m
+[32m✓ built in 283ms[39m
 [0m
   Route (app)
   ─ ? /
@@ -105,9 +105,9 @@ computing gzip size...
 
   Build complete. Run `vinext start` to start the production server.
 
-✔ every production hydration asset referenced by HTML exists (227.8522ms)
-✔ public release manifest binds the deployed page to ContestPilot (4.5442ms)
-✔ server-renders the ContestPilot product (215.7185ms)
+✔ every production hydration asset referenced by HTML exists (188.1377ms)
+✔ public release manifest binds the deployed page to ContestPilot (2.8671ms)
+✔ server-renders the ContestPilot product (181.6626ms)
 ℹ tests 3
 ℹ suites 0
 ℹ pass 3
@@ -115,13 +115,13 @@ computing gzip size...
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 393.2064
+ℹ duration_ms 314.8503
 
 
 
 ## ContestPilot lint
-startedAt=2026-07-18T22:11:57.680Z
-completedAt=2026-07-18T22:12:05.113Z
+startedAt=2026-07-18T22:24:35.943Z
+completedAt=2026-07-18T22:24:41.562Z
 command=C:\Program Files\nodejs\node.exe C:\Program Files\nodejs\node_modules\npm\bin\npm-cli.js run lint
 exitCode=0
 
@@ -132,8 +132,8 @@ exitCode=0
 
 
 ## ContestPilot dependency audit
-startedAt=2026-07-18T22:12:05.113Z
-completedAt=2026-07-18T22:12:07.027Z
+startedAt=2026-07-18T22:24:41.562Z
+completedAt=2026-07-18T22:24:43.625Z
 command=C:\Program Files\nodejs\node.exe C:\Program Files\nodejs\node_modules\npm\bin\npm-cli.js audit --audit-level=high
 exitCode=0
 found 0 vulnerabilities
@@ -141,8 +141,8 @@ found 0 vulnerabilities
 
 
 ## ProofForge tests
-startedAt=2026-07-18T22:12:07.027Z
-completedAt=2026-07-18T22:12:17.544Z
+startedAt=2026-07-18T22:24:43.625Z
+completedAt=2026-07-18T22:24:53.639Z
 command=<repo>\entries\backblaze-generative-media-2026\app\.venv\Scripts\python.exe -m pytest -q -W error
 exitCode=0
 .....................................................                    [100%]
@@ -150,8 +150,8 @@ exitCode=0
 
 
 ## ProofForge lint
-startedAt=2026-07-18T22:12:17.544Z
-completedAt=2026-07-18T22:12:18.911Z
+startedAt=2026-07-18T22:24:53.639Z
+completedAt=2026-07-18T22:24:53.841Z
 command=<repo>\entries\backblaze-generative-media-2026\app\.venv\Scripts\python.exe -m ruff check .
 exitCode=0
 All checks passed!
@@ -159,8 +159,8 @@ All checks passed!
 
 
 ## ProofForge dependency consistency
-startedAt=2026-07-18T22:12:18.911Z
-completedAt=2026-07-18T22:12:22.381Z
+startedAt=2026-07-18T22:24:53.841Z
+completedAt=2026-07-18T22:24:54.996Z
 command=<repo>\entries\backblaze-generative-media-2026\app\.venv\Scripts\python.exe -m pip check
 exitCode=0
 No broken requirements found.
@@ -168,8 +168,8 @@ No broken requirements found.
 
 
 ## ProofForge vulnerability audit
-startedAt=2026-07-18T22:12:22.381Z
-completedAt=2026-07-18T22:12:26.449Z
+startedAt=2026-07-18T22:24:54.996Z
+completedAt=2026-07-18T22:24:56.873Z
 command=<repo>\entries\backblaze-generative-media-2026\app\.venv\Scripts\python.exe -m pip_audit -r requirements-lock.txt --disable-pip
 exitCode=0
 
@@ -177,8 +177,8 @@ No known vulnerabilities found
 
 
 ## ProofForge Cloudflare wrapper audit
-startedAt=2026-07-18T22:12:26.449Z
-completedAt=2026-07-18T22:12:28.180Z
+startedAt=2026-07-18T22:24:56.873Z
+completedAt=2026-07-18T22:24:58.346Z
 command=C:\Program Files\nodejs\node.exe C:\Program Files\nodejs\node_modules\npm\bin\npm-cli.js audit --audit-level=high
 exitCode=0
 found 0 vulnerabilities
@@ -186,8 +186,8 @@ found 0 vulnerabilities
 
 
 ## ProofForge Cloudflare wrapper dry run
-startedAt=2026-07-18T22:12:28.180Z
-completedAt=2026-07-18T22:12:33.618Z
+startedAt=2026-07-18T22:24:58.346Z
+completedAt=2026-07-18T22:25:04.791Z
 command=C:\Program Files\nodejs\node.exe C:\Program Files\nodejs\node_modules\npm\bin\npm-cli.js run check
 exitCode=0
 
@@ -208,9 +208,9 @@ The following containers are available:
 - proofforge-media-proofforgecontainer (<repo>\entries\backblaze-generative-media-2026\app\Dockerfile)
 
 --dry-run: exiting now.
-✔ routes every judge request to one named container (1.8289ms)
-✔ passes required live credentials only through Worker secrets (0.4871ms)
-✔ uses the pinned application Dockerfile and health endpoint (0.3428ms)
+✔ routes every judge request to one named container (1.6848ms)
+✔ passes required live credentials only through Worker secrets (0.4113ms)
+✔ uses the pinned application Dockerfile and health endpoint (0.3156ms)
 ℹ tests 3
 ℹ suites 0
 ℹ pass 3
@@ -218,7 +218,7 @@ The following containers are available:
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 125.9108
+ℹ duration_ms 132.3578
 
 #0 building with "desktop-linux" instance using docker driver
 
@@ -227,54 +227,59 @@ The following containers are available:
 #1 DONE 0.0s
 
 #2 [internal] load metadata for docker.io/library/python:3.11.15-slim-bookworm@sha256:b18992999dbe963a45a8a4da40ac2b1975be1a776d939d098c647482bcad5cba
-#2 DONE 0.1s
+#2 ...
 
-#3 [internal] load .dockerignore
-#3 transferring context:
-#3 transferring context: 163B done
+#3 [auth] library/python:pull token for registry-1.docker.io
 #3 DONE 0.0s
 
-#4 [1/7] FROM docker.io/library/python:3.11.15-slim-bookworm@sha256:b18992999dbe963a45a8a4da40ac2b1975be1a776d939d098c647482bcad5cba
-#4 resolve docker.io/library/python:3.11.15-slim-bookworm@sha256:b18992999dbe963a45a8a4da40ac2b1975be1a776d939d098c647482bcad5cba 0.0s done
-#4 DONE 0.1s
+#2 [internal] load metadata for docker.io/library/python:3.11.15-slim-bookworm@sha256:b18992999dbe963a45a8a4da40ac2b1975be1a776d939d098c647482bcad5cba
+#2 DONE 0.7s
 
-#5 [internal] load build context
-#5 transferring context: 69.07kB 0.0s done
-#5 DONE 0.1s
+#4 [internal] load .dockerignore
+#4 transferring context: 163B done
+#4 DONE 0.0s
 
-#6 [2/7] WORKDIR /app
-#6 CACHED
+#5 [1/7] FROM docker.io/library/python:3.11.15-slim-bookworm@sha256:b18992999dbe963a45a8a4da40ac2b1975be1a776d939d098c647482bcad5cba
+#5 resolve docker.io/library/python:3.11.15-slim-bookworm@sha256:b18992999dbe963a45a8a4da40ac2b1975be1a776d939d098c647482bcad5cba 0.0s done
+#5 DONE 0.0s
 
-#7 [3/7] COPY requirements-lock.txt ./
+#6 [internal] load build context
+#6 transferring context: 71.47kB 0.0s done
+#6 DONE 0.0s
+
+#7 [2/7] WORKDIR /app
 #7 CACHED
 
-#8 [4/7] RUN python -m pip install --no-cache-dir --require-hashes -r requirements-lock.txt
+#8 [3/7] COPY requirements-lock.txt ./
 #8 CACHED
 
-#9 [5/7] COPY proofforge ./proofforge
-#9 DONE 0.1s
+#9 [4/7] RUN python -m pip install --no-cache-dir --require-hashes -r requirements-lock.txt
+#9 CACHED
 
-#10 [6/7] COPY static ./static
+#10 [5/7] COPY proofforge ./proofforge
 #10 DONE 0.1s
 
-#11 [7/7] RUN useradd --create-home --uid 10001 proofforge     && mkdir -p /app/data     && chown -R proofforge:proofforge /app
-#11 DONE 0.8s
+#11 [6/7] COPY static ./static
+#11 DONE 0.1s
 
-#12 exporting to image
-#12 exporting layers
-#12 exporting layers 0.3s done
-#12 exporting manifest sha256:c9791e552ff3f058055526cdbeb2e92106fd81ddfd3027cc0b0b0e564ab3bf7f 0.0s done
-#12 exporting config sha256:1ce919201047d04d29dfa6b026c21367bc58ed25dcb3d2c975d02f455fccb33f 0.0s done
-#12 naming to docker.io/library/proofforge-media-proofforgecontainer:worker done
-#12 unpacking to docker.io/library/proofforge-media-proofforgecontainer:worker 0.1s done
-#12 DONE 0.5s
+#12 [7/7] RUN useradd --create-home --uid 10001 proofforge     && mkdir -p /app/data     && chown -R proofforge:proofforge /app
+#12 DONE 0.4s
 
-View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/lqp8sa0shzchrg2ek4qslzucp
+#13 exporting to image
+#13 exporting layers
+#13 exporting layers 0.2s done
+#13 exporting manifest sha256:eeb3cf08f1d31b24ab1dfc72b9a3023d679dbdbfa4c6a8ea767735f95cbe0a00 0.0s done
+#13 exporting config sha256:5e654d6dbe84b697f2f9275021b21a0b7a55ea4ec017a5061b081fe4b64eeda1 0.0s done
+#13 naming to docker.io/library/proofforge-media-proofforgecontainer:worker done
+#13 unpacking to docker.io/library/proofforge-media-proofforgecontainer:worker 0.1s done
+#13 DONE 0.4s
+
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/50fhhcb740dzaemy1og77plf1
 
 
 ## Generate clean release repositories
-startedAt=2026-07-18T22:12:33.619Z
-completedAt=2026-07-18T22:12:34.413Z
+startedAt=2026-07-18T22:25:04.791Z
+completedAt=2026-07-18T22:25:05.501Z
 command=C:\Program Files\nodejs\node.exe <repo>\scripts\build-release-repos.mjs
 exitCode=0
 <repo>\release\contestpilot
@@ -283,8 +288,8 @@ exitCode=0
 
 
 ## Verify release repository layout
-startedAt=2026-07-18T22:12:34.413Z
-completedAt=2026-07-18T22:12:34.546Z
+startedAt=2026-07-18T22:25:05.501Z
+completedAt=2026-07-18T22:25:05.654Z
 command=C:\Program Files\nodejs\node.exe <repo>\scripts\verify-release-layout.mjs
 exitCode=0
 Release layout contains all required modules and zero forbidden directories.
@@ -292,8 +297,8 @@ Release layout contains all required modules and zero forbidden directories.
 
 
 ## Release repository secret scan
-startedAt=2026-07-18T22:12:34.546Z
-completedAt=2026-07-18T22:12:34.987Z
+startedAt=2026-07-18T22:25:05.654Z
+completedAt=2026-07-18T22:25:05.966Z
 command=C:\Program Files\nodejs\node.exe <repo>\scripts\secret-scan.mjs <repo>\release\contestpilot <repo>\release\proofforge-media
 exitCode=0
 Secret scan passed for 2 release directories.
@@ -301,16 +306,16 @@ Secret scan passed for 2 release directories.
 
 
 ## ProofForge packaged import
-startedAt=2026-07-18T22:12:34.987Z
-completedAt=2026-07-18T22:12:37.015Z
+startedAt=2026-07-18T22:25:05.966Z
+completedAt=2026-07-18T22:25:07.823Z
 command=<repo>\entries\backblaze-generative-media-2026\app\.venv\Scripts\python.exe -c from proofforge.main import app; assert app.title == 'ProofForge Media'
 exitCode=0
 
 
 
 ## ProofForge packaged tests
-startedAt=2026-07-18T22:12:37.015Z
-completedAt=2026-07-18T22:12:50.345Z
+startedAt=2026-07-18T22:25:07.823Z
+completedAt=2026-07-18T22:25:19.085Z
 command=<repo>\entries\backblaze-generative-media-2026\app\.venv\Scripts\python.exe -m pytest -q -W error -p no:cacheprovider
 exitCode=0
 .....................................................                    [100%]
@@ -318,8 +323,8 @@ exitCode=0
 
 
 ## Regenerate final clean release repositories
-startedAt=2026-07-18T22:12:50.345Z
-completedAt=2026-07-18T22:12:50.716Z
+startedAt=2026-07-18T22:25:19.085Z
+completedAt=2026-07-18T22:25:19.568Z
 command=C:\Program Files\nodejs\node.exe <repo>\scripts\build-release-repos.mjs
 exitCode=0
 <repo>\release\contestpilot
@@ -328,8 +333,8 @@ exitCode=0
 
 
 ## Re-verify final release repository layout
-startedAt=2026-07-18T22:12:50.716Z
-completedAt=2026-07-18T22:12:50.811Z
+startedAt=2026-07-18T22:25:19.568Z
+completedAt=2026-07-18T22:25:19.665Z
 command=C:\Program Files\nodejs\node.exe <repo>\scripts\verify-release-layout.mjs
 exitCode=0
 Release layout contains all required modules and zero forbidden directories.
@@ -337,8 +342,8 @@ Release layout contains all required modules and zero forbidden directories.
 
 
 ## Re-scan final release repositories
-startedAt=2026-07-18T22:12:50.811Z
-completedAt=2026-07-18T22:12:51.060Z
+startedAt=2026-07-18T22:25:19.666Z
+completedAt=2026-07-18T22:25:19.895Z
 command=C:\Program Files\nodejs\node.exe <repo>\scripts\secret-scan.mjs <repo>\release\contestpilot <repo>\release\proofforge-media
 exitCode=0
 Secret scan passed for 2 release directories.
@@ -346,8 +351,8 @@ Secret scan passed for 2 release directories.
 
 
 ## ProofForge container build
-startedAt=2026-07-18T22:12:51.060Z
-completedAt=2026-07-18T22:12:54.153Z
+startedAt=2026-07-18T22:25:19.895Z
+completedAt=2026-07-18T22:25:22.439Z
 command=docker.exe build --pull=false -t proofforge-release:local .
 exitCode=0
 
@@ -358,22 +363,20 @@ exitCode=0
 #1 DONE 0.0s
 
 #2 [internal] load metadata for docker.io/library/python:3.11.15-slim-bookworm@sha256:b18992999dbe963a45a8a4da40ac2b1975be1a776d939d098c647482bcad5cba
-#2 DONE 0.1s
+#2 DONE 0.0s
 
 #3 [internal] load .dockerignore
+#3 transferring context: 32B
 #3 transferring context: 163B 0.0s done
 #3 DONE 0.0s
 
-#4 [internal] load build context
-#4 DONE 0.0s
-
-#5 [1/7] FROM docker.io/library/python:3.11.15-slim-bookworm@sha256:b18992999dbe963a45a8a4da40ac2b1975be1a776d939d098c647482bcad5cba
-#5 resolve docker.io/library/python:3.11.15-slim-bookworm@sha256:b18992999dbe963a45a8a4da40ac2b1975be1a776d939d098c647482bcad5cba 0.0s done
-#5 DONE 0.1s
-
-#4 [internal] load build context
-#4 transferring context: 31.18kB 0.0s done
+#4 [1/7] FROM docker.io/library/python:3.11.15-slim-bookworm@sha256:b18992999dbe963a45a8a4da40ac2b1975be1a776d939d098c647482bcad5cba
+#4 resolve docker.io/library/python:3.11.15-slim-bookworm@sha256:b18992999dbe963a45a8a4da40ac2b1975be1a776d939d098c647482bcad5cba 0.0s done
 #4 DONE 0.1s
+
+#5 [internal] load build context
+#5 transferring context: 32.50kB 0.0s done
+#5 DONE 0.0s
 
 #6 [2/7] WORKDIR /app
 #6 CACHED
@@ -391,27 +394,27 @@ exitCode=0
 #10 DONE 0.1s
 
 #11 [7/7] RUN useradd --create-home --uid 10001 proofforge     && mkdir -p /app/data     && chown -R proofforge:proofforge /app
-#11 DONE 0.5s
+#11 DONE 0.4s
 
 #12 exporting to image
 #12 exporting layers
-#12 exporting layers 0.3s done
-#12 exporting manifest sha256:a1620452cccb47bcddefcf93cfe428e11fb85f7ef0e330e8913a2e2202e6f4cd 0.0s done
-#12 exporting config sha256:791f5bb0de09f1d6e31b600ad0f685be8945b112f02492c345b2977d241f0d28 0.0s done
-#12 exporting attestation manifest sha256:997f98e0e71bc73457fe50dd2afcf1172523accb3cb04f9f7a58db69d68e6c5e 0.1s done
-#12 exporting manifest list sha256:6afa44b05062a20547592db16bebb08e361be527a54a17e74a2124b5f78c5a0f
-#12 exporting manifest list sha256:6afa44b05062a20547592db16bebb08e361be527a54a17e74a2124b5f78c5a0f 0.0s done
+#12 exporting layers 0.2s done
+#12 exporting manifest sha256:1835d3185606e90f1cc762068066111c7ff2a44e961ffb85c9ff1b99bf6eb101 0.0s done
+#12 exporting config sha256:a4fbb8e4e4d9bda90c15e55cf2e4600ddabaee54d8d388cc723678add038fc04 0.0s done
+#12 exporting attestation manifest sha256:84d2dd698ca4e5a38de2e94286bc80cfab48123af7a2d3f64b7b748677081ca5 0.0s done
+#12 exporting manifest list sha256:a89d7220c2d58706baea995c4b6899ae8fdbc1552600a983d489ff8336e9d5d4
+#12 exporting manifest list sha256:a89d7220c2d58706baea995c4b6899ae8fdbc1552600a983d489ff8336e9d5d4 0.0s done
 #12 naming to docker.io/library/proofforge-release:local done
 #12 unpacking to docker.io/library/proofforge-release:local
 #12 unpacking to docker.io/library/proofforge-release:local 0.2s done
-#12 DONE 0.8s
+#12 DONE 0.6s
 
-View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/i2jxghj75wsyqgq5egvuhhl9d
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/4dj7kbtcxgcikik9f2p6mzq22
 
 
 ## ProofForge container judge-path smoke
-startedAt=2026-07-18T22:12:54.153Z
-completedAt=2026-07-18T22:12:58.147Z
+startedAt=2026-07-18T22:25:22.439Z
+completedAt=2026-07-18T22:25:25.942Z
 exitCode=0
 health=200
 runStatus=completed
