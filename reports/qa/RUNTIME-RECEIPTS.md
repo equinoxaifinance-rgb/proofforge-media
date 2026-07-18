@@ -24,7 +24,7 @@ The source was copied to an isolated `<qa-cold>/devpost-autopilot-20260718-v5` d
 
 ## ContestPilot browser and production behavior
 
-- Public URL: https://contestpilot-evidence-2026.therealbortega.chatgpt.site
+- Public URL: https://contestpilot-evidence-2026.equinoxaifinance.workers.dev
 - Production HTML and all six hydration assets returned HTTP 200. Security responses include
   CSP, `X-Content-Type-Options: nosniff`, and `Referrer-Policy`.
 - A fresh public browser tab produced no console entries. After hydration, Ready showed its
@@ -37,7 +37,7 @@ The source was copied to an isolated `<qa-cold>/devpost-autopilot-20260718-v5` d
 ## ProofForge Media runtime behavior
 
 - Durable public URL: https://proofforge-media.equinoxaifinance.workers.dev. Cloudflare
-  deployment version `8815bef5-6e6a-4496-8182-0f243c30c22d` serves the current container
+  deployment version `8a3da01e-63ce-4968-8561-d2b462346af1` serves the current container
   image; exact deployment, recovery, API, and Lighthouse evidence is retained in
   `reports/qa/proofforge-cloudflare-deployment-8a3da01e-2026-07-18.json`.
 - Public browser QA forced a 58% first iteration and reached 95% on iteration two. Integrity
