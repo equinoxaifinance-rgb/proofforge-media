@@ -1,4 +1,4 @@
-# Runtime QA receipts — 2026-07-17
+# Runtime QA receipts — 2026-07-18
 
 These receipts separate executed checks from source inspection. They do not prove a contest
 result or Devpost acceptance. A paid OpenAI generation and real Backblaze B2 write/recovery are
@@ -36,9 +36,10 @@ The source was copied to an isolated `<qa-cold>/devpost-autopilot-20260718-v5` d
 
 ## ProofForge Media runtime behavior
 
-- Public QA URL: https://conceptual-initial-jungle-neural.trycloudflare.com. This is an
-  ephemeral Cloudflare Quick Tunnel with no uptime guarantee; it is not represented as a
-  durable final submission host.
+- Durable public URL: https://proofforge-media.equinoxaifinance.workers.dev. Cloudflare
+  deployment version `8815bef5-6e6a-4496-8182-0f243c30c22d` serves the current container
+  image; exact deployment, recovery, API, and Lighthouse evidence is retained in
+  `reports/qa/proofforge-cloudflare-deployment-8815bef5-2026-07-18.json`.
 - Public browser QA forced a 58% first iteration and reached 95% on iteration two. Integrity
   displayed `VERIFIED`, the output was explicitly labeled local/synthetic, pipeline version
   was `2026-07-17.4`, and the browser console remained empty.
@@ -63,10 +64,10 @@ The source was copied to an isolated `<qa-cold>/devpost-autopilot-20260718-v5` d
 
 - The canonical current gate is `reports/qa/release-verify.receipt.json`, produced by
   `npm run release:verify` after 20/20 bounded steps, completed at
-  `2026-07-18T07:23:20.874Z` with transcript SHA-256
-  `495675f46832b3aa8ee0ee3778f3c093a8b11bd10907b642ba5f55c35af51490`:
-  28 ContestPilot engine/control-plane tests; the ContestPilot production build and three
-  render/asset/release-identity tests; ContestPilot lint and npm audit; 47 ProofForge tests
+  `2026-07-18T09:56:45.149Z` with transcript SHA-256
+  `bf315e168a48c5fc30b71ec414bb4748c5af43af0d8fe00dfd461bfeb0c23422`:
+  31 ContestPilot engine/control-plane tests; the ContestPilot production build and three
+  render/asset/release-identity tests; ContestPilot lint and npm audit; 48 ProofForge tests
   with warnings treated as errors;
   Ruff; `pip check`; `pip-audit`; Cloudflare wrapper audit, dry-run build, and three config
   tests; clean release generation and layout verification; secret scanning; packaged import and
@@ -81,7 +82,7 @@ The source was copied to an isolated `<qa-cold>/devpost-autopilot-20260718-v5` d
 - Clean-room install from the generated ContestPilot directory passed 28 engine/control-plane tests,
   installed/audited 333 site packages with zero vulnerabilities, passed its production
   build and three render/asset/release-identity tests, and passed ESLint.
-- The generated ProofForge directory imported successfully, passed the same 47 tests, built as
+- The generated ProofForge directory imported successfully, passed the same 48 tests, built as
   a container, and passed the protected judge-path smoke. The packaged B2 client then loaded the
   real approved run `c2ab959e-ecd7-4b90-b152-9f1f23bc82b6`, fetched 1,213,775 media bytes, and
   independently matched SHA-256
@@ -106,10 +107,15 @@ an executed check; rejected advice includes an explicit failure-mode analysis.
 - The approved live ProofForge run scored 0.98, persisted its asset and manifest to B2, and
   recovered from an empty local database/disk cache with a matching 1,213,775-byte SHA-256.
   Exact receipts are in `reports/integrations/PROOFFORGE-LIVE-RECEIPT.md`.
-- The ProofForge public URL is temporary, not durable.
+- The durable ProofForge deployment passed direct recovery after one recorded rollout
+  transient, public positive and negative API checks, exact B2 showcase-byte readback, and
+  Lighthouse scores of 1.0 for performance, accessibility, best practices, and SEO. The
+  Lighthouse process serialized complete reports before a Windows temporary-profile cleanup
+  error; the report contents and hashes were independently validated.
 - Existing private videos predate the approved live B2 showcase and durable recovery layer;
   they are stale and are not final judge artifacts. Videos remain last.
-- The public MIT ProofForge repository exists; the ContestPilot repository exists but awaits
-  the current gate-certified release push. Final Devpost receipts do not exist yet.
+- Both public MIT repositories exist. Their final post-deployment deltas must be pushed and
+  verified from clean public checkouts before video production. Final Devpost receipts do not
+  exist yet.
 - Sponsor/judge/employment/conflict exclusions still require explicit owner attestation.
 - Final rule acceptance and Devpost submission remain owner actions.

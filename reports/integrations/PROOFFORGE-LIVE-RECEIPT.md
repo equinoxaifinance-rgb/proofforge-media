@@ -80,9 +80,15 @@ Machine-readable companion:
 
 ## Remaining blind spots
 
-- A durable public judge host has not yet been deployed.
+- The durable judge host is
+  `https://proofforge-media.equinoxaifinance.workers.dev`; deployment version
+  `8815bef5-6e6a-4496-8182-0f243c30c22d` passed authenticated/unauthenticated API probes,
+  exact showcase-byte readback, disabled-live-mode checks, malformed/oversized/injection
+  rejection, and Lighthouse 1.0/1.0/1.0/1.0. See
+  `reports/qa/proofforge-cloudflare-deployment-8815bef5-2026-07-18.json`.
 - The approved live run passed on its first 0.98 iteration, so the real provider did not need a
   revision. The deterministic public demo separately executes a failing first iteration and a
   passing revision; this is not represented as proof of a paid-provider revision.
 - Genblaze did not expose an image price for this model, so generation cost remains unknown.
-- Final browser/accessibility/load testing must be repeated against the durable public URL.
+- The completed Lighthouse run is a single controlled mobile-profile measurement, not a
+  long-duration uptime or global load guarantee.

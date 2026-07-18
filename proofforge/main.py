@@ -28,6 +28,7 @@ APP_ROOT = Path(__file__).resolve().parents[1]
 IDEMPOTENCY_KEY_RE = re.compile(r"^[A-Za-z0-9_-]{20,128}$")
 SAFE_ASSET_NAME_RE = re.compile(r"^[a-f0-9]{64}\.[a-z0-9]{1,10}$")
 MAX_RATE_LIMIT_CLIENTS = 4096
+BUILD_ID = "proofforge-2026-07-18.2-schema-v2"
 logger = logging.getLogger("proofforge")
 
 
@@ -45,6 +46,9 @@ def create_app(
         title="ProofForge Media",
         version="0.2.0",
         description="Evidence-first generative media orchestration with Genblaze and Backblaze B2.",
+        docs_url=None,
+        redoc_url=None,
+        openapi_url=None,
     )
     application.state.settings = settings
     application.state.store = store
@@ -153,6 +157,13 @@ def create_app(
     def home() -> FileResponse:
         return FileResponse(APP_ROOT / "static" / "index.html")
 
+    @application.get("/favicon.ico", include_in_schema=False)
+    def favicon() -> FileResponse:
+        # Some browsers request the conventional fallback even when the HTML
+        # advertises the SVG icon explicitly. Serve the same checked-in asset
+        # instead of generating a production 404.
+        return FileResponse(APP_ROOT / "static" / "favicon.svg", media_type="image/svg+xml")
+
     @application.get("/api/health")
     def health() -> dict:
         if not store.health_check():
@@ -161,6 +172,7 @@ def create_app(
             "status": "ok",
             "service": "proofforge",
             "version": "0.2.0",
+            "buildId": BUILD_ID,
             "pipelineVersion": PIPELINE_VERSION,
             "database": "ok",
         }
@@ -215,6 +227,19 @@ def create_app(
     def showcase() -> dict:
         run = public_showcase_run()
         result = run["result"]
+        # Do not expose provider-private URLs in the judge-facing receipt. Content-addressed
+        # object keys and hashes remain useful provenance without leaking bucket topology.
+        public_storage = {
+            key: value
+            for key, value in result["storage"].items()
+            if not key.lower().endswith("url")
+        }
+        if isinstance(public_storage.get("iterations"), list):
+            public_storage["iterations"] = [
+                {key: value for key, value in item.items() if not key.lower().endswith("url")}
+                for item in public_storage["iterations"]
+                if isinstance(item, dict)
+            ]
         return {
             "runId": run["id"],
             "createdAt": run["createdAt"],
@@ -233,7 +258,7 @@ def create_app(
                 "iterations": result["orchestration"]["iterations"],
                 "passed": result["orchestration"]["passed"],
             },
-            "storage": result["storage"],
+            "storage": public_storage,
             "checks": result["checks"],
             "approval": next(
                 review

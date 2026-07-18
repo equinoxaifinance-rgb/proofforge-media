@@ -1,8 +1,8 @@
 # Submission draft: Backblaze Generative Media Hackathon
 
-This copy reflects the approved live Genblaze/OpenAI/B2 run and the current hardened release.
-The durable judge URL, final video, owner attestations, and Devpost receipt remain publication
-gates and must be inserted only after their checks pass.
+This copy reflects the approved live Genblaze/OpenAI/B2 run, the hardened release, and the
+verified durable judge deployment. The final video, owner attestations, and Devpost receipt
+remain publication gates and must be inserted only after their checks pass.
 
 ## Project name
 
@@ -84,11 +84,11 @@ durable bytes match the approved local asset.
 
 ## What's next
 
-The owner-authorized live run is complete. It produced a real GPT Image asset, GPT-5.6 Terra
-evaluation, Genblaze lineage, B2 asset and manifest objects, per-iteration fetch-back checks,
-and empty-local-state recovery. The remaining gates are the exact Cloudflare container
-deployment with a read-only B2 key, hostile remote verification, the final accurate video,
-owner attestations, and the Devpost submitted-state receipt.
+The owner-authorized live run and read-only public deployment are complete. They expose the
+real approved showcase without exposing paid generation, recover the exact asset from B2,
+and passed hostile remote verification plus Lighthouse 1.0 scores in all four categories.
+The remaining gates are the final accurate video, owner attestations, and the Devpost
+submitted-state receipt.
 
 ## Built with
 
@@ -98,7 +98,7 @@ GPT-5.6 Terra, SQLite WAL, Pydantic, defusedxml, Docker, pytest, and Ruff.
 
 ## Links
 
-- Durable demo: [DEPLOYMENT GATE - insert only after hostile remote verification]
+- Durable demo: https://proofforge-media.equinoxaifinance.workers.dev
 - Repository: https://github.com/equinoxaifinance-rgb/proofforge-media
-- Final public video: [VIDEO GATE - record only after the durable deployment is green]
+- Final public video: [VIDEO GATE - record after the final public source is synchronized]
 - Live B2 receipt: `../../reports/integrations/PROOFFORGE-LIVE-RECEIPT.md`

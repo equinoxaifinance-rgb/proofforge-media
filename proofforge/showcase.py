@@ -58,18 +58,11 @@ class B2ShowcaseStore:
         if len(receipt_bytes) > MAX_RECEIPT_BYTES:
             raise RuntimeError("showcase receipt exceeds the safety limit")
         receipt_hash = hashlib.sha256(receipt_bytes).hexdigest()
-        receipt_key = f"proofforge/showcase/runs/{run['id']}.json"
-        self.backend.put(
-            receipt_key,
-            receipt_bytes,
-            content_type="application/json",
-            extra_args={"CacheControl": "no-store"},
-        )
-        if self.backend.get(receipt_key) != receipt_bytes:
-            raise RuntimeError("B2 showcase receipt fetch-back verification failed")
-
+        # Receipts are immutable and content-addressed. A new approval/review for the
+        # same run must never overwrite the bytes referenced by the current pointer.
+        receipt_key = f"proofforge/showcase/runs/{run['id']}/{receipt_hash}.json"
         pointer = {
-            "schemaVersion": "1",
+            "schemaVersion": "2",
             "runId": run["id"],
             "receiptKey": receipt_key,
             "receiptSha256": receipt_hash,
@@ -77,15 +70,22 @@ class B2ShowcaseStore:
             "manifestCanonicalHash": run["result"]["manifest"]["canonicalHash"],
         }
         pointer_bytes = canonical_bytes(pointer)
-        # The object PUT is atomic, and this lock makes the following fetch-back
-        # correspond to this operator publication in the supported single process.
-        # Preserve the last verified pointer so a write-then-validation failure
-        # cannot replace a working public showcase with an unreadable pointer.
+        # Serialize the entire receipt + pointer publication. The object PUT is
+        # atomic, and preserving the last verified pointer ensures a failed
+        # publication cannot replace a working public showcase.
         with self._publish_lock:
             previous_pointer = (
                 self.backend.get(LATEST_KEY) if self.backend.exists(LATEST_KEY) else None
             )
             try:
+                self.backend.put(
+                    receipt_key,
+                    receipt_bytes,
+                    content_type="application/json",
+                    extra_args={"CacheControl": "no-store"},
+                )
+                if self.backend.get(receipt_key) != receipt_bytes:
+                    raise RuntimeError("B2 showcase receipt fetch-back verification failed")
                 self.backend.put(
                     LATEST_KEY,
                     pointer_bytes,
@@ -115,12 +115,17 @@ class B2ShowcaseStore:
         if len(pointer_bytes) > 16 * 1024:
             raise RuntimeError("B2 showcase pointer exceeds the safety limit")
         pointer = json.loads(pointer_bytes)
-        if not isinstance(pointer, dict) or pointer.get("schemaVersion") != "1":
+        if not isinstance(pointer, dict) or pointer.get("schemaVersion") not in {"1", "2"}:
             raise RuntimeError("B2 showcase pointer schema is invalid")
+        schema_version = pointer["schemaVersion"]
         run_id = pointer.get("runId")
         receipt_key = pointer.get("receiptKey")
         receipt_hash = pointer.get("receiptSha256")
-        expected_key = f"proofforge/showcase/runs/{run_id}.json"
+        expected_key = (
+            f"proofforge/showcase/runs/{run_id}.json"
+            if schema_version == "1"
+            else f"proofforge/showcase/runs/{run_id}/{receipt_hash}.json"
+        )
         if (
             not isinstance(run_id, str)
             or not RUN_ID_RE.fullmatch(run_id)

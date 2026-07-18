@@ -74,6 +74,15 @@ def create_demo(client: TestClient) -> tuple[str, dict[str, str]]:
 
 def test_full_demo_judge_path_is_scoped_and_receipted(tmp_path: Path) -> None:
     with TestClient(create_app(tmp_path)) as client:
+        home = client.get("/")
+        assert home.status_code == 200
+        assert "Every asset" in home.text
+        favicon = client.get("/favicon.ico")
+        assert favicon.status_code == 200
+        assert favicon.headers["content-type"].startswith("image/svg+xml")
+        expected_favicon = Path(__file__).parents[1] / "static" / "favicon.svg"
+        assert favicon.content == expected_favicon.read_bytes()
+
         health = client.get("/api/health")
         assert health.status_code == 200
         assert health.json()["database"] == "ok"
@@ -81,6 +90,9 @@ def test_full_demo_judge_path_is_scoped_and_receipted(tmp_path: Path) -> None:
         assert "'unsafe-inline'" not in health.headers["content-security-policy"]
         assert health.headers["x-content-type-options"] == "nosniff"
         assert health.headers["cache-control"] == "no-store"
+        assert health.json()["buildId"] == "proofforge-2026-07-18.2-schema-v2"
+        assert client.get("/docs").status_code == 404
+        assert client.get("/openapi.json").status_code == 404
 
         run_id, headers = create_demo(client)
         protected = [
@@ -202,6 +214,7 @@ def test_b2_publication_state_fails_closed_and_recovers_on_retry(
         assert showcase.status_code == 200
         assert client.get("/api/capabilities").json()["showcaseReady"] is True
         assert showcase.json()["storage"]["b2Persisted"] is True
+        assert all(not key.lower().endswith("url") for key in showcase.json()["storage"])
         assert "brief" not in showcase.json()
         assert "evaluationReceipts" not in showcase.json()["orchestration"]
         assert showcase.json()["runId"] == live_id

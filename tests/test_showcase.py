@@ -1,5 +1,6 @@
 import copy
 import hashlib
+import json
 import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
@@ -128,7 +129,8 @@ def test_b2_showcase_fails_closed_on_receipt_or_asset_tampering() -> None:
     showcase_store = B2ShowcaseStore(backend)
     showcase_store.publish(run)
 
-    receipt_key = f"proofforge/showcase/runs/{run['id']}.json"
+    pointer = json.loads(backend.objects[LATEST_KEY])
+    receipt_key = pointer["receiptKey"]
     backend.objects[receipt_key] += b"tamper"
     with pytest.raises(RuntimeError, match="receipt hash verification failed"):
         showcase_store.load()
@@ -213,3 +215,45 @@ def test_failed_pointer_fetch_back_restores_previous_verified_showcase() -> None
 
     assert backend.objects[LATEST_KEY] == previous_pointer
     assert store.load()["id"] == first["id"]
+
+
+def test_failed_same_run_republication_preserves_previous_immutable_receipt() -> None:
+    class CorruptNextPointerStore(MemoryObjectStore):
+        corrupt_next_pointer = False
+
+        def put(self, key, data, **kwargs):
+            result = super().put(key, data, **kwargs)
+            if key == LATEST_KEY and self.corrupt_next_pointer:
+                self.corrupt_next_pointer = False
+                self.objects[key] = b'{"schemaVersion":"corrupt"}'
+            return result
+
+    asset_bytes = b"same-run-stable-showcase"
+    backend = CorruptNextPointerStore()
+    first = approved_run(asset_bytes)
+    backend.objects[first["result"]["storage"]["objectKey"]] = asset_bytes
+    store = B2ShowcaseStore(backend)
+    store.publish(first)
+    previous_pointer = backend.objects[LATEST_KEY]
+    previous_receipt_key = json.loads(previous_pointer)["receiptKey"]
+    previous_receipt = backend.objects[previous_receipt_key]
+
+    republished = copy.deepcopy(first)
+    republished["reviews"].append(
+        {
+            "approved": True,
+            "verified": True,
+            "reviewer": "Second operator review",
+            "notes": "Reconfirmed without replacing prior evidence",
+            "createdAt": "2026-07-18T05:20:00+00:00",
+        }
+    )
+    republished["updatedAt"] = "2026-07-18T05:20:00+00:00"
+    backend.corrupt_next_pointer = True
+
+    with pytest.raises(RuntimeError, match="pointer schema is invalid"):
+        store.publish(republished)
+
+    assert backend.objects[LATEST_KEY] == previous_pointer
+    assert backend.objects[previous_receipt_key] == previous_receipt
+    assert store.load()["reviews"] == first["reviews"]

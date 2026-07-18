@@ -1,0 +1,104 @@
+{
+  "receiptVersion": 1,
+  "testedAt": "2026-07-18T04:25:52.0852080-04:00",
+  "target": "https://proofforge-media.equinoxaifinance.workers.dev",
+  "deploymentVersionId": "0908db6e-4d71-4ed1-bbd0-d35300d7321a",
+  "method": "External HTTPS tests from a client with no operator or B2 credentials",
+  "result": "PASS",
+  "health": {
+    "status": 200,
+    "service": "proofforge",
+    "version": "0.2.0",
+    "pipelineVersion": "2026-07-18.1",
+    "database": "ok",
+    "cacheControl": "no-store",
+    "contentSecurityPolicyPresent": true
+  },
+  "durableShowcase": {
+    "status": 200,
+    "contentType": "image/png",
+    "bytes": 1213775,
+    "sha256": "6d899e872d4ca78dea258dbf686f615303b9b2d4eff2522f39338128d1c0417b",
+    "metadataAndDownloadedBytesMatch": true,
+    "contentSecurityPolicyPresent": true
+  },
+  "demoRun": {
+    "id": "7045def3-13b8-49fa-b7f7-2c551b364fac",
+    "initialCreateStatus": 202,
+    "completed": true,
+    "repeatCreateStatus": 202,
+    "repeatCreated": false,
+    "repeatResolvedToSameRun": true,
+    "accessTokenReturned": true,
+    "accessTokenRedacted": true,
+    "asset": {
+      "status": 200,
+      "contentType": "image/svg+xml",
+      "bytes": 1406,
+      "sha256": "a097705dcae7c08ee82d045819492567a14671c5a01d6a9f60fd155b0dcd8bbd",
+      "matchesRunReceipt": true
+    },
+    "manifest": {
+      "status": 200,
+      "canonicalHash": "b1893be071e254c55e09e251ea40de7f4ef53da7b2c23b80804bc749d50d16a0",
+      "genblazeRunId": "6c3cc98e-f517-4495-a40f-ee8772189e69",
+      "provider": "proof-forge-demo",
+      "model": "proof-forge-demo-v1",
+      "recordedAssetSha256MatchesRunReceipt": true
+    },
+    "evidenceZip": {
+      "status": 200,
+      "bytes": 4908,
+      "sha256": "97fb273931a0e7fb32a5adaba96a35b0ed2583f33399a3ae0658c0c76e824d46",
+      "zipMagicValid": true,
+      "embeddedAssetMatchesRunReceipt": true,
+      "entries": [
+        {
+          "name": "brief.json",
+          "bytes": 416,
+          "sha256": "4c24a511e74aaa390fc00a358c4cf3271b518880df90de82b992ab19dd327ae6"
+        },
+        {
+          "name": "receipt.json",
+          "bytes": 7157,
+          "sha256": "90d00f094ab59bf2cf91a384621ed2ce30a2788208222e064cf3bb8cdeef65a2"
+        },
+        {
+          "name": "manifest.json",
+          "bytes": 3315,
+          "sha256": "8a7ae85afaa82d9e53e0e99de01d5b5cc0970bedd65d886989f9ea5cb6e75f31"
+        },
+        {
+          "name": "asset/a097705dcae7c08ee82d045819492567a14671c5a01d6a9f60fd155b0dcd8bbd.svg",
+          "bytes": 1406,
+          "sha256": "a097705dcae7c08ee82d045819492567a14671c5a01d6a9f60fd155b0dcd8bbd"
+        }
+      ]
+    },
+    "demoReview": {
+      "status": 201,
+      "approved": false,
+      "verified": false,
+      "publicationStatus": "not_requested"
+    }
+  },
+  "negativeChecks": {
+    "runWithoutAccessKey": 401,
+    "runWithWrongAccessKey": 401,
+    "runListWithoutOperatorKey": 401,
+    "liveModeWhileDisabled": 409,
+    "invalidIdempotencyKey": 422,
+    "oversizedRequestBody": 413,
+    "malformedJson": 422,
+    "promptInjectionMarker": 422,
+    "invalidReviewSchema": 422
+  },
+  "testHarnessCorrection": {
+    "firstAttemptDisposition": "DISCARDED_INCOMPLETE_FIELDS",
+    "reason": "PowerShell 5 coerced a typed null parameter into an empty GET body and lacked newer HashData/ToHexString APIs.",
+    "productImpact": "none",
+    "correction": "Reran with an untyped body parameter, bodyless GET requests, and SHA256.Create().ComputeHash().",
+    "correctedAttemptExitCode": 0
+  },
+  "secretsIncluded": false
+}

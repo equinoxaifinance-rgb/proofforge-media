@@ -14,7 +14,7 @@
 - [x] Public GitHub repository exists with MIT license, source, tests, and setup instructions.
 - [ ] Owner confirms sponsor, judge, employment, prize-provider, and conflict exclusions.
 - [ ] Owner reviews and accepts the official rules.
-- [ ] Public app URL passes the same auth, outage, corruption, responsive, and security-header checks.
+- [x] Durable public app passes scoped auth, malformed/oversized/injection rejection, disabled-live spending, exact B2 asset readback, responsive, and Lighthouse checks.
 - [ ] Final public video under three minutes is inserted and bound to a machine-readable QA receipt.
 - [ ] Owner gives action-time approval for final Devpost publication.
 - [ ] Devpost displays and records submitted-state confirmation.

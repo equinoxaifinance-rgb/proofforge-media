@@ -122,8 +122,11 @@ write/delete pipeline credential is never installed on the public host.
 ## Current release gates
 
 The local demo, hostile suite, browser QA, container QA, paid OpenAI generation, real B2
-round-trip, verified approval, and empty-local-state B2 recovery have receipts in
+round-trip, verified approval, empty-local-state B2 recovery, and durable public deployment
+have receipts in
 `../../../reports/qa/RUNTIME-RECEIPTS.md` and
-`reports/integrations/PROOFFORGE-LIVE-RECEIPT.md` in the public release repository. The public
-MIT repository is https://github.com/equinoxaifinance-rgb/proofforge-media. Durable Cloudflare
-hosting, final video publication, rule acceptance, and final Devpost submission remain.
+`reports/integrations/PROOFFORGE-LIVE-RECEIPT.md` and
+`reports/qa/proofforge-cloudflare-deployment-8815bef5-2026-07-18.json` in the public release
+repository. The durable app is https://proofforge-media.equinoxaifinance.workers.dev and the
+public MIT repository is https://github.com/equinoxaifinance-rgb/proofforge-media. Final video
+publication, rule acceptance, and final Devpost submission remain.

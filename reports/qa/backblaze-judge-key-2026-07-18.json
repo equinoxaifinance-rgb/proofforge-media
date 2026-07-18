@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-07-18T07:36:00Z",
+  "result": "passed",
+  "keyMetadata": {
+    "keyName": "proofforge-judge-read-2026-07",
+    "bucket": "proofforge-media-equinox-2026",
+    "prefix": "proofforge/",
+    "expiresAt": "2026-10-16T03:35:00-04:00",
+    "capabilities": [
+      "listBuckets",
+      "listFiles",
+      "readBucketEncryption",
+      "readBucketLifecycleRules",
+      "readBucketLogging",
+      "readBucketNotifications",
+      "readBucketReplications",
+      "readBuckets",
+      "readFiles",
+      "shareFiles"
+    ],
+    "writeCapabilitiesPresent": false,
+    "deleteCapabilitiesPresent": false,
+    "keyManagementCapabilitiesPresent": false
+  },
+  "positiveControl": {
+    "listedObjectCount": 6,
+    "allListedObjectsMatchPrefix": true,
+    "latestPointerRead": true,
+    "runId": "c2ab959e-ecd7-4b90-b152-9f1f23bc82b6",
+    "receiptKey": "proofforge/showcase/runs/c2ab959e-ecd7-4b90-b152-9f1f23bc82b6.json",
+    "receiptHashMatch": true,
+    "assetKey": "proofforge/assets/6d/89/6d899e872d4ca78dea258dbf686f615303b9b2d4eff2522f39338128d1c0417b.png",
+    "assetBytes": 1213775,
+    "assetSha256": "6d899e872d4ca78dea258dbf686f615303b9b2d4eff2522f39338128d1c0417b",
+    "assetHashMatch": true,
+    "manifestHashMatch": true
+  },
+  "negativeControl": {
+    "operation": "S3 PutObject under the allowed proofforge/ prefix",
+    "denied": true,
+    "error": "AccessDenied",
+    "objectCreated": false
+  },
+  "secretBoundary": {
+    "credentialFile": "secrets/proofforge-judge-host.env",
+    "gitIgnored": true,
+    "printed": false,
+    "committed": false,
+    "publicHostLiveGeneration": false,
+    "publicHostOpenAiKeyInstalled": false
+  }
+}

@@ -1,0 +1,96 @@
+{
+  "receiptVersion": 1,
+  "recordedAt": "2026-07-18T05:03:04.2389405-04:00",
+  "target": "https://proofforge-media.equinoxaifinance.workers.dev",
+  "result": "PASS_WITH_DOCUMENTED_ROLLOUT_TRANSIENT",
+  "deployment": {
+    "wranglerVersion": "4.112.0",
+    "worker": "proofforge-media",
+    "versionId": "8815bef5-6e6a-4496-8182-0f243c30c22d",
+    "containerApplicationId": "a037d6d9-5ccb-4df1-ac69-fd21b655367e",
+    "containerImageDigest": "sha256:02da0322ce3297ced888c6d29432690bbf0ef171b1276cd02df49a6bd749f2d1",
+    "uploadBytes": 55706,
+    "uploadGzipBytes": 13814,
+    "workerStartupMs": 5,
+    "commandExitCode": 0,
+    "trailingWranglerMessage": "no such manifest after SUCCESS",
+    "interpretation": "Treated as yellow until direct runtime recovery and content readback passed."
+  },
+  "authorization": {
+    "scope": "exact command npx wrangler deploy --strict",
+    "commandSha256": "ce2a188cd6dec00cd1720c7002626c8849f8636969d57f4be56e309e1857c484",
+    "session": "019f71df-8fcd-7542-bdef-2a52f258c1fc",
+    "ttlSeconds": 900,
+    "uses": 1,
+    "receiptConsumed": true,
+    "replayTestedInHarness": true,
+    "harnessTests": "23 pass / 0 fail"
+  },
+  "rolloutRecovery": {
+    "initialFailure": "Error proxying request to container: The container is not running, consider calling start()",
+    "recoveryObservedAt": "2026-07-18T09:01:24.9161923Z",
+    "recoveryAttempt": 1,
+    "status": 200,
+    "elapsedMs": 2867,
+    "newHtmlObserved": true
+  },
+  "deployedFrontend": {
+    "localIndexBytes": 7817,
+    "localIndexSha256": "bb529e756c2711fa670c8f4ba7fbe2ddcd94a62b5835c8e6b8d23a79d497c5e6",
+    "showcaseImageLazy": true,
+    "showcaseImageAsyncDecode": true,
+    "showcaseImageLowPriority": true,
+    "showcaseImageIntrinsicDimensions": "1024x1024"
+  },
+  "lighthouse": {
+    "finalUrl": "https://proofforge-media.equinoxaifinance.workers.dev/",
+    "fetchTime": "2026-07-18T09:01:45.362Z",
+    "runWarnings": [],
+    "performance": 1.0,
+    "accessibility": 1.0,
+    "bestPractices": 1.0,
+    "seo": 1.0,
+    "firstContentfulPaintMs": 1295.488,
+    "largestContentfulPaintMs": 1363.488,
+    "totalBlockingTimeMs": 18,
+    "cumulativeLayoutShift": 0,
+    "jsonReportBytes": 611825,
+    "jsonReportSha256": "329ec12573a56ddeea5f63f7391385bc9a3d8176743c565ee64fce9f04ffe411",
+    "htmlReportBytes": 715496,
+    "htmlReportSha256": "a5c8d312ae71f854d5f51b92503b30f0af3deb677b0458b6bbd87078c2b3059f",
+    "processCleanupNote": "Lighthouse serialized complete reports, then exited 1 because Windows denied deletion of its temporary Chrome profile. Report validity was checked independently."
+  },
+  "publicApiRegression": {
+    "capabilities": {
+      "demoReady": true,
+      "liveEnabled": false,
+      "liveReady": false,
+      "b2Ready": true,
+      "showcaseReady": true
+    },
+    "durableShowcase": {
+      "status": 200,
+      "bytes": 1213775,
+      "sha256": "6d899e872d4ca78dea258dbf686f615303b9b2d4eff2522f39338128d1c0417b",
+      "matchesMetadata": true
+    },
+    "demoRun": {
+      "id": "a26495f8-7e10-47f5-ad94-b53bfd8cab66",
+      "createStatus": 202,
+      "finalStatus": "completed",
+      "unauthorizedRead": 401,
+      "wrongKeyRead": 401,
+      "assetStatus": 200,
+      "assetSha256": "b3b9a202d1427d01c7a6d66d0d09a2c66cb61a260552fffdb496d421e7ce6e38",
+      "assetMatchesReceipt": true,
+      "evidenceStatus": 200,
+      "evidenceZipMagic": true
+    },
+    "negative": {
+      "oversizedBody": 413,
+      "promptInjection": 422,
+      "liveModeDisabled": 409
+    }
+  },
+  "secretsIncluded": false
+}
