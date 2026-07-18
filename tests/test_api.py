@@ -11,6 +11,43 @@ from proofforge.main import B2ShowcaseStore, create_app
 DEMO_IDEMPOTENCY_HEADERS = {"X-Proofforge-Idempotency-Key": "test-session-key-0000000000000001"}
 
 
+class RecordingShowcaseStore:
+    def __init__(self, *, fail_publish: bool = False) -> None:
+        self.fail_publish = fail_publish
+        self.current: dict | None = None
+        self.attempts: list[dict] = []
+
+    def publish(self, run: dict) -> dict:
+        self.attempts.append(copy.deepcopy(run))
+        if self.fail_publish:
+            raise RuntimeError("injected B2 pointer failure")
+        self.current = copy.deepcopy(run)
+        return copy.deepcopy(run)
+
+    def load(self) -> dict | None:
+        return copy.deepcopy(self.current)
+
+
+def seed_completed_live(app, client: TestClient) -> str:
+    demo_id, _ = create_demo(client)
+    demo = app.state.store.get(demo_id)
+    result = copy.deepcopy(demo["result"])
+    result["models"] = ["gpt-image-2", "gpt-image-1.5 fallback", "gpt-5.6-terra"]
+    result["storage"] = {
+        "backend": "Backblaze B2 through genblaze-s3",
+        "keyStrategy": "CONTENT_ADDRESSABLE",
+        "b2Persisted": True,
+        "objectKey": "proofforge/assets/aa/bb/hash.png",
+        "manifestObjectKey": "proofforge/runs/manifest.json",
+        "iterations": [],
+    }
+    result["checks"]["publicDemoIsSynthetic"] = False
+    live, _ = app.state.store.create_or_get("live-showcase", "live", demo["brief"])
+    assert app.state.store.start_run(live["id"], "live") is True
+    app.state.store.complete_run(live["id"], result)
+    return live["id"]
+
+
 def payload() -> dict:
     return {
         "mode": "demo",
@@ -41,6 +78,7 @@ def test_full_demo_judge_path_is_scoped_and_receipted(tmp_path: Path) -> None:
         assert health.status_code == 200
         assert health.json()["database"] == "ok"
         assert "frame-ancestors 'none'" in health.headers["content-security-policy"]
+        assert "'unsafe-inline'" not in health.headers["content-security-policy"]
         assert health.headers["x-content-type-options"] == "nosniff"
         assert health.headers["cache-control"] == "no-store"
 
@@ -106,32 +144,59 @@ def test_live_mode_and_run_listing_are_operator_locked(tmp_path: Path, monkeypat
         assert response.status_code == 409
 
 
-def test_public_showcase_requires_verified_live_approval(tmp_path: Path) -> None:
+def test_local_review_never_substitutes_for_durable_publication(
+    tmp_path: Path, monkeypatch
+) -> None:
+    monkeypatch.setenv("PROOFFORGE_OPERATOR_TOKEN", "operator-secret")
     app = create_app(tmp_path)
     with TestClient(app) as client:
         assert client.get("/api/capabilities").json()["showcaseReady"] is False
-        assert client.get("/api/showcase").status_code == 404
-        assert client.get("/api/showcase/asset").status_code == 404
-        demo_id, _ = create_demo(client)
-        demo = app.state.store.get(demo_id)
-        result = copy.deepcopy(demo["result"])
-        result["models"] = ["gpt-image-2", "gpt-image-1.5 fallback", "gpt-5.6-terra"]
-        result["storage"] = {
-            "backend": "Backblaze B2 through genblaze-s3",
-            "keyStrategy": "CONTENT_ADDRESSABLE",
-            "b2Persisted": True,
-            "objectKey": "proofforge/assets/aa/bb/hash.png",
-            "manifestObjectKey": "proofforge/runs/manifest.json",
-            "iterations": [],
-        }
-        result["checks"]["publicDemoIsSynthetic"] = False
-        live, _ = app.state.store.create_or_get("live-showcase", "live", demo["brief"])
-        assert app.state.store.start_run(live["id"], "live") is True
-        app.state.store.complete_run(live["id"], result)
-        assert client.get("/api/showcase").status_code == 404
-        app.state.store.add_review(
-            live["id"], True, "Operator", "Approved for public showcase", verified=True
+        assert client.get("/api/showcase").status_code == 503
+        live_id = seed_completed_live(app, client)
+        response = client.post(
+            f"/api/runs/{live_id}/review",
+            headers={"X-Proofforge-Key": "operator-secret"},
+            json={
+                "approved": True,
+                "reviewer": "Operator",
+                "notes": "Approved for public showcase",
+            },
         )
+        assert response.status_code == 503
+        assert app.state.store.get(live_id)["reviews"] == []
+        assert app.state.store.latest_verified_live() is None
+
+
+def test_b2_publication_state_fails_closed_and_recovers_on_retry(
+    tmp_path: Path, monkeypatch
+) -> None:
+    monkeypatch.setenv("PROOFFORGE_OPERATOR_TOKEN", "operator-secret")
+    showcase_store = RecordingShowcaseStore(fail_publish=True)
+    app = create_app(tmp_path, showcase_store=showcase_store)
+    with TestClient(app) as client:
+        live_id = seed_completed_live(app, client)
+        request = {
+            "approved": True,
+            "reviewer": "Operator",
+            "notes": "Approved for public showcase",
+        }
+        headers = {"X-Proofforge-Key": "operator-secret"}
+        failed = client.post(f"/api/runs/{live_id}/review", headers=headers, json=request)
+        assert failed.status_code == 502
+        failed_review = app.state.store.get(live_id)["reviews"][-1]
+        assert failed_review["verified"] is True
+        assert failed_review["publicationStatus"] == "failed"
+        assert failed_review["publicationError"] == "RuntimeError"
+        assert app.state.store.latest_verified_live() is None
+        assert client.get("/api/capabilities").json()["showcaseReady"] is False
+        assert client.get("/api/showcase").status_code == 404
+
+        showcase_store.fail_publish = False
+        published = client.post(f"/api/runs/{live_id}/review", headers=headers, json=request)
+        assert published.status_code == 201
+        assert published.json()["publicationStatus"] == "published"
+        assert published.json()["publicationError"] is None
+        assert app.state.store.latest_verified_live()["id"] == live_id
 
         showcase = client.get("/api/showcase")
         assert showcase.status_code == 200
@@ -139,9 +204,13 @@ def test_public_showcase_requires_verified_live_approval(tmp_path: Path) -> None
         assert showcase.json()["storage"]["b2Persisted"] is True
         assert "brief" not in showcase.json()
         assert "evaluationReceipts" not in showcase.json()["orchestration"]
-        asset = client.get("/api/showcase/asset")
-        assert asset.status_code == 200
-        assert hashlib.sha256(asset.content).hexdigest() == result["asset"]["sha256"]
+        assert showcase.json()["runId"] == live_id
+        published_reviews = [
+            item
+            for item in app.state.store.get(live_id)["reviews"]
+            if item["publicationStatus"] == "published"
+        ]
+        assert len(published_reviews) == 1
 
 
 def test_b2_showcase_initializes_without_enabling_live_generation(
@@ -234,6 +303,45 @@ def test_demo_rate_limit_is_enforced(tmp_path: Path) -> None:
             assert client.post("/api/runs", json=payload()).status_code == 202
         limited = client.post("/api/runs", json=payload())
         assert limited.status_code == 429
+
+
+def test_cloudflare_edge_rate_keys_separate_valid_clients(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.setenv("PROOFFORGE_TRUST_EDGE_CLIENT_IP", "true")
+    with TestClient(create_app(tmp_path)) as client:
+        for index in range(13):
+            response = client.post(
+                "/api/runs",
+                json=payload(),
+                headers={"X-Proofforge-Client-IP": f"203.0.113.{index + 1}"},
+            )
+            assert response.status_code == 202
+
+
+def test_cloudflare_edge_rate_key_rejects_spoofable_shapes(tmp_path: Path, monkeypatch) -> None:
+    monkeypatch.setenv("PROOFFORGE_TRUST_EDGE_CLIENT_IP", "true")
+    malformed = ["198.51.100.1, 198.51.100.2", "not-an-ip"]
+    with TestClient(create_app(tmp_path)) as client:
+        for index in range(13):
+            response = client.post(
+                "/api/runs",
+                json=payload(),
+                headers={"X-Proofforge-Client-IP": malformed[index % len(malformed)]},
+            )
+            assert response.status_code == (202 if index < 12 else 429)
+
+
+def test_cloudflare_edge_rate_key_tracks_same_client_across_requests(
+    tmp_path: Path, monkeypatch
+) -> None:
+    monkeypatch.setenv("PROOFFORGE_TRUST_EDGE_CLIENT_IP", "true")
+    with TestClient(create_app(tmp_path)) as client:
+        for index in range(13):
+            response = client.post(
+                "/api/runs",
+                json=payload(),
+                headers={"X-Proofforge-Client-IP": "2001:db8::1"},
+            )
+            assert response.status_code == (202 if index < 12 else 429)
 
 
 def test_demo_access_token_survives_process_restart(tmp_path: Path) -> None:

@@ -181,3 +181,35 @@ def test_concurrent_operator_publications_are_serialized() -> None:
     assert {run["id"] for run in published} == {first["id"], second["id"]}
     assert backend.max_active_pointer_writes == 1
     assert store.load()["id"] in {first["id"], second["id"]}
+
+
+def test_failed_pointer_fetch_back_restores_previous_verified_showcase() -> None:
+    class CorruptNextPointerStore(MemoryObjectStore):
+        corrupt_next_pointer = False
+
+        def put(self, key, data, **kwargs):
+            result = super().put(key, data, **kwargs)
+            if key == LATEST_KEY and self.corrupt_next_pointer:
+                self.corrupt_next_pointer = False
+                self.objects[key] = b'{"schemaVersion":"corrupt"}'
+            return result
+
+    backend = CorruptNextPointerStore()
+    first_asset = b"first-stable-showcase"
+    second_asset = b"second-failed-showcase"
+    first = approved_run(first_asset)
+    second = copy.deepcopy(approved_run(second_asset))
+    second["id"] = "e3aed0e7-16c6-4c18-86ab-7e8f8402e435"
+    for run, asset in ((first, first_asset), (second, second_asset)):
+        backend.objects[run["result"]["storage"]["objectKey"]] = asset
+
+    store = B2ShowcaseStore(backend)
+    store.publish(first)
+    previous_pointer = backend.objects[LATEST_KEY]
+    backend.corrupt_next_pointer = True
+
+    with pytest.raises(RuntimeError, match="pointer schema is invalid"):
+        store.publish(second)
+
+    assert backend.objects[LATEST_KEY] == previous_pointer
+    assert store.load()["id"] == first["id"]

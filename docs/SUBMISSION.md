@@ -1,7 +1,8 @@
 # Submission draft: Backblaze Generative Media Hackathon
 
-This copy is complete for the tested local/demo build. Bracketed owner gates must be replaced
-with real live/public receipts before publication.
+This copy reflects the approved live Genblaze/OpenAI/B2 run and the current hardened release.
+The durable judge URL, final video, owner attestations, and Devpost receipt remain publication
+gates and must be inserted only after their checks pass.
 
 ## Project name
 
@@ -60,10 +61,15 @@ but the previous verified result remained visible instead of being destroyed by 
 
 ## Accomplishments
 
-- 27 adversarial Python tests pass under warnings-as-errors, plus Ruff and dependency checks.
+- 47 adversarial Python tests pass under warnings-as-errors, plus Ruff, dependency consistency,
+  and vulnerability checks.
 - A forced weak first pass scores 58%, revision scores 95%, and the final local asset hash is verified.
 - One-byte corruption changes asset access to 409; retry exposes queued → running → completed and repairs the same idempotent run.
 - Tokens survive restart through a persistent signing key; short configured keys are rejected.
+- Failed B2 pointer publication remains explicitly unpublished, restores the prior verified
+  pointer, and can be retried without becoming a false public approval.
+- The public-host design uses a separate read-only, `proofforge/`-scoped B2 credential and
+  keeps paid generation disabled for judges.
 - The pinned container runs non-root with a read-only root filesystem and a real healthcheck.
 - Desktop and 375px mobile browser layouts have no horizontal overflow.
 - Independent audits found cross-user deduplication, model-markup injection, incomplete
@@ -78,10 +84,11 @@ durable bytes match the approved local asset.
 
 ## What's next
 
-The next gate is a single owner-authorized live run with real OpenAI and Backblaze credentials.
-That run must produce B2 object, manifest, fetch-back hash, cost, and public-host receipts.
-After that we will deploy the exact container, rerun the hostile suite against the public URL,
-publish the repository and video, and submit only with owner approval.
+The owner-authorized live run is complete. It produced a real GPT Image asset, GPT-5.6 Terra
+evaluation, Genblaze lineage, B2 asset and manifest objects, per-iteration fetch-back checks,
+and empty-local-state recovery. The remaining gates are the exact Cloudflare container
+deployment with a read-only B2 key, hostile remote verification, the final accurate video,
+owner attestations, and the Devpost submitted-state receipt.
 
 ## Built with
 
@@ -91,10 +98,7 @@ GPT-5.6 Terra, SQLite WAL, Pydantic, defusedxml, Docker, pytest, and Ruff.
 
 ## Links
 
-- Temporary public QA demo: https://conceptual-initial-jungle-neural.trycloudflare.com
-  (ephemeral tunnel; replace with a durable host before final submission)
-- Repository: [OWNER GATE — publish/share repository and insert URL]
-- Private video preview: https://youtu.be/zLBGPpEUoQY
-  (OWNER GATE — Private is not judge-accessible; change to the contest-required visibility
-  only after final sign-off)
-- Live B2 receipt: [OWNER GATE — configure credentials and authorize one paid live run]
+- Durable demo: [DEPLOYMENT GATE - insert only after hostile remote verification]
+- Repository: https://github.com/equinoxaifinance-rgb/proofforge-media
+- Final public video: [VIDEO GATE - record only after the durable deployment is green]
+- Live B2 receipt: `../../reports/integrations/PROOFFORGE-LIVE-RECEIPT.md`

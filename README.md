@@ -5,8 +5,10 @@ generation, rubric evaluation, and revision; operator-locked live mode persists 
 iteration asset and manifest to Backblaze B2 and fetches every object back before claiming
 byte integrity.
 
-The default public path is deliberately synthetic and local. It requires no cloud credentials,
-spends no API credits, and never claims B2 persistence.
+The interactive judge path is deliberately synthetic and local. It requires no cloud
+generation credentials, spends no API credits, and never claims that synthetic bytes were
+persisted to B2. The separate public showcase reads an operator-approved live receipt and its
+exact verified asset from B2.
 
 ## Architecture
 
@@ -60,7 +62,8 @@ restart recovery, tenant-scoped idempotency, duplicate concurrency, migration co
 provider failure, the full mocked live Genblaze-to-object-store contract, every-iteration
 fetch-back verification, invalid transitions, pruning races, review atomicity, path escape,
 corruption, missing/oversized assets, evidence contents, SVG text bounds, B2 receipt/media
-tampering, and recovery of an approved showcase with an empty local database and disk cache.
+tampering, publication failure/rollback/retry, Cloudflare client-identity rate keys, and
+recovery of an approved showcase with an empty local database and disk cache.
 
 ## Reproducible container
 
@@ -84,7 +87,8 @@ to one named instance, passes live credentials only from encrypted Worker secret
 Wrangler dry-run/config test. Cloudflare container disks are ephemeral. Public demo rows remain
 intentionally disposable; an approved live showcase is recovered from a hash-linked receipt
 and media object in B2. The
-deployment requires the Workers Paid plan and must not be activated without owner approval.
+deployment uses the owner-approved Workers Paid plan. It creates only the isolated
+`proofforge-media` Worker/Container and does not attach routes or modify existing domains.
 
 ## Operator-locked live mode
 
@@ -102,6 +106,10 @@ live run or verified approval. Never expose the operator token or B2 application
 browser. Judges use the public local workflow plus sanitized receipts from an operator-created
 live run; they are never given an unlimited paid-generation credential.
 
+The judge deployment sets `PROOFFORGE_ENABLE_LIVE=false`, omits `OPENAI_API_KEY`, and uses a
+separate Backblaze key limited to `listFiles`/`readFiles` for the `proofforge/` prefix. The
+write/delete pipeline credential is never installed on the public host.
+
 ## Providers and models
 
 - Orchestrator: Genblaze 0.4.3
@@ -116,5 +124,6 @@ live run; they are never given an unlimited paid-generation credential.
 The local demo, hostile suite, browser QA, container QA, paid OpenAI generation, real B2
 round-trip, verified approval, and empty-local-state B2 recovery have receipts in
 `../../../reports/qa/RUNTIME-RECEIPTS.md` and
-`../../../reports/integrations/PROOFFORGE-LIVE-RECEIPT.md`. Durable public hosting, repository
-publication, final video publication, rule acceptance, and final Devpost submission remain.
+`reports/integrations/PROOFFORGE-LIVE-RECEIPT.md` in the public release repository. The public
+MIT repository is https://github.com/equinoxaifinance-rgb/proofforge-media. Durable Cloudflare
+hosting, final video publication, rule acceptance, and final Devpost submission remain.

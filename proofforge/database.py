@@ -87,6 +87,8 @@ class RunStore:
                     reviewer TEXT NOT NULL,
                     notes TEXT NOT NULL,
                     verified INTEGER NOT NULL DEFAULT 0,
+                    publication_status TEXT NOT NULL DEFAULT 'not_requested',
+                    publication_error TEXT,
                     created_at TEXT NOT NULL
                 );
                 """
@@ -96,6 +98,23 @@ class RunStore:
                 try:
                     connection.execute(
                         "ALTER TABLE reviews ADD COLUMN verified INTEGER NOT NULL DEFAULT 0"
+                    )
+                except sqlite3.OperationalError as error:
+                    if "duplicate column name" not in str(error).lower():
+                        raise
+            if "publication_status" not in columns:
+                try:
+                    connection.execute(
+                        "ALTER TABLE reviews ADD COLUMN publication_status "
+                        "TEXT NOT NULL DEFAULT 'not_requested'"
+                    )
+                except sqlite3.OperationalError as error:
+                    if "duplicate column name" not in str(error).lower():
+                        raise
+            if "publication_error" not in columns:
+                try:
+                    connection.execute(
+                        "ALTER TABLE reviews ADD COLUMN publication_error TEXT"
                     )
                 except sqlite3.OperationalError as error:
                     if "duplicate column name" not in str(error).lower():
@@ -278,14 +297,25 @@ class RunStore:
         notes: str,
         *,
         verified: bool,
+        publication_status: str = "not_requested",
     ) -> dict[str, Any]:
+        if publication_status not in {"not_requested", "pending", "published", "failed"}:
+            raise ValueError("invalid review publication status")
         created_at = utc_now()
         with self.connect() as connection:
             connection.execute(
                 "INSERT INTO reviews "
-                "(run_id, approved, reviewer, notes, verified, created_at) "
-                "VALUES (?, ?, ?, ?, ?, ?)",
-                (run_id, int(approved), reviewer, notes, int(verified), created_at),
+                "(run_id, approved, reviewer, notes, verified, publication_status, created_at) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?)",
+                (
+                    run_id,
+                    int(approved),
+                    reviewer,
+                    notes,
+                    int(verified),
+                    publication_status,
+                    created_at,
+                ),
             )
             connection.execute(
                 "INSERT INTO events "
@@ -298,6 +328,7 @@ class RunStore:
                             "approved": approved,
                             "reviewer": reviewer,
                             "verified": verified,
+                            "publicationStatus": publication_status,
                         }
                     ),
                     created_at,
@@ -308,7 +339,54 @@ class RunStore:
             "reviewer": reviewer,
             "notes": notes,
             "verified": verified,
+            "publicationStatus": publication_status,
+            "publicationError": None,
             "createdAt": created_at,
+        }
+
+    def set_review_publication(
+        self,
+        run_id: str,
+        created_at: str,
+        publication_status: str,
+        error: str | None = None,
+    ) -> dict[str, Any]:
+        if publication_status not in {"published", "failed"}:
+            raise ValueError("publication status must be published or failed")
+        with self.connect() as connection:
+            cursor = connection.execute(
+                "UPDATE reviews SET publication_status = ?, publication_error = ? "
+                "WHERE run_id = ? AND created_at = ? AND publication_status = 'pending'",
+                (publication_status, error, run_id, created_at),
+            )
+            if cursor.rowcount != 1:
+                raise RuntimeError("pending review publication state was not found")
+            connection.execute(
+                "INSERT INTO events "
+                "(run_id, event_type, payload_json, created_at) VALUES (?, ?, ?, ?)",
+                (
+                    run_id,
+                    f"showcase.publication.{publication_status}",
+                    json.dumps({"reviewCreatedAt": created_at, "error": error}),
+                    utc_now(),
+                ),
+            )
+            row = connection.execute(
+                "SELECT approved, reviewer, notes, verified, publication_status, "
+                "publication_error, created_at FROM reviews "
+                "WHERE run_id = ? AND created_at = ?",
+                (run_id, created_at),
+            ).fetchone()
+        if row is None:
+            raise RuntimeError("review publication state disappeared")
+        return {
+            "approved": bool(row["approved"]),
+            "reviewer": row["reviewer"],
+            "notes": row["notes"],
+            "verified": bool(row["verified"]),
+            "publicationStatus": row["publication_status"],
+            "publicationError": row["publication_error"],
+            "createdAt": row["created_at"],
         }
 
     def get(self, run_id: str) -> dict[str, Any] | None:
@@ -322,7 +400,8 @@ class RunStore:
                 (run_id,),
             ).fetchall()
             reviews = connection.execute(
-                "SELECT approved, reviewer, notes, verified, created_at FROM reviews "
+                "SELECT approved, reviewer, notes, verified, publication_status, "
+                "publication_error, created_at FROM reviews "
                 "WHERE run_id = ? ORDER BY id",
                 (run_id,),
             ).fetchall()
@@ -349,6 +428,8 @@ class RunStore:
                     "reviewer": review["reviewer"],
                     "notes": review["notes"],
                     "verified": bool(review["verified"]),
+                    "publicationStatus": review["publication_status"],
+                    "publicationError": review["publication_error"],
                     "createdAt": review["created_at"],
                 }
                 for review in reviews
@@ -373,6 +454,7 @@ class RunStore:
                 "SELECT runs.id FROM runs JOIN reviews ON reviews.run_id = runs.id "
                 "WHERE runs.mode = 'live' AND runs.status = 'completed' "
                 "AND reviews.approved = 1 AND reviews.verified = 1 "
+                "AND reviews.publication_status = 'published' "
                 "ORDER BY reviews.created_at DESC, reviews.id DESC LIMIT 1"
             ).fetchone()
         return self.get(row["id"]) if row else None

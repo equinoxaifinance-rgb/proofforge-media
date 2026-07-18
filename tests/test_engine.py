@@ -169,7 +169,7 @@ def test_concurrent_legacy_migration_is_idempotent(tmp_path: Path) -> None:
     assert len(stores) == 8
     with sqlite3.connect(database) as connection:
         columns = {row[1] for row in connection.execute("PRAGMA table_info(reviews)")}
-    assert "verified" in columns
+    assert {"verified", "publication_status", "publication_error"}.issubset(columns)
 
 
 def test_asset_hashing_rejects_oversized_file_before_reading_it(tmp_path: Path) -> None:

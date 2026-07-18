@@ -1,20 +1,20 @@
 {
-  "generatedAt": "2026-07-18T04:30:29.509Z",
+  "generatedAt": "2026-07-18T06:58:32.234Z",
   "vulnerabilityAudit": "No known vulnerabilities found in locked Python runtime; npm audit reported 0 vulnerabilities.",
   "artifacts": [
     {
       "path": "reports/security/proofforge.cdx.json",
-      "sha256": "2caafd5ce5c4a6df0816b820c541da2210c17bd4483969a49a4d351de3787800",
+      "sha256": "3c9f777eeddf54f61ab1fe2dfe3bd7d52aec54ee1bcec54fb69d21afe662333c",
       "bytes": 7151
     },
     {
       "path": "reports/security/contestpilot-site.cdx.json",
-      "sha256": "4e208f5721f0b511753f8f656e9f6dc82256e945d4d5405eda5d0fb490c10e5e",
+      "sha256": "08c2467a6dec593b709c7efc7ba80eb8a32268782e9a75e4f4ccb7f89374faa1",
       "bytes": 421950
     },
     {
       "path": "reports/security/proofforge-cloudflare.cdx.json",
-      "sha256": "60745a6f8535713c729ef790abc91a8b8fad3f0835736cd507cbf659c219e5d0",
+      "sha256": "cb4ce065739c6ba7b43b14895272d4b95d0fb14a1964258706f1f9e73d82e266",
       "bytes": 44893
     }
   ]

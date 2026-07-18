@@ -79,16 +79,33 @@ class B2ShowcaseStore:
         pointer_bytes = canonical_bytes(pointer)
         # The object PUT is atomic, and this lock makes the following fetch-back
         # correspond to this operator publication in the supported single process.
+        # Preserve the last verified pointer so a write-then-validation failure
+        # cannot replace a working public showcase with an unreadable pointer.
         with self._publish_lock:
-            self.backend.put(
-                LATEST_KEY,
-                pointer_bytes,
-                content_type="application/json",
-                extra_args={"CacheControl": "no-store"},
+            previous_pointer = (
+                self.backend.get(LATEST_KEY) if self.backend.exists(LATEST_KEY) else None
             )
-            loaded = self.load()
-            if loaded is None or loaded["id"] != run["id"]:
-                raise RuntimeError("B2 showcase pointer fetch-back verification failed")
+            try:
+                self.backend.put(
+                    LATEST_KEY,
+                    pointer_bytes,
+                    content_type="application/json",
+                    extra_args={"CacheControl": "no-store"},
+                )
+                loaded = self.load()
+                if loaded is None or loaded["id"] != run["id"]:
+                    raise RuntimeError("B2 showcase pointer fetch-back verification failed")
+            except Exception:
+                if previous_pointer is None:
+                    self.backend.delete(LATEST_KEY)
+                else:
+                    self.backend.put(
+                        LATEST_KEY,
+                        previous_pointer,
+                        content_type="application/json",
+                        extra_args={"CacheControl": "no-store"},
+                    )
+                raise
         return loaded
 
     def load(self) -> dict[str, Any] | None:

@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import hmac
 import io
+import ipaddress
 import json
 import logging
 import re
@@ -90,6 +91,21 @@ def create_app(
             settings.operator_token and key and secrets.compare_digest(key, settings.operator_token)
         )
 
+    def demo_client_key(request: Request) -> str:
+        if settings.trust_edge_client_ip:
+            edge_value = request.headers.get("x-proofforge-client-ip", "").strip()
+            try:
+                if not edge_value or "," in edge_value:
+                    raise ValueError("edge client IP must contain exactly one address")
+                return f"edge:{ipaddress.ip_address(edge_value).compressed}"
+            except ValueError:
+                # The Worker overwrites this header. If deployment wiring is
+                # malformed, collapse to one bounded failure-safe bucket rather
+                # than accepting attacker-controlled or unbounded identities.
+                return "edge:invalid"
+        transport = request.client.host if request.client else "unknown"
+        return f"transport:{transport}"
+
     def require_run_access(
         run: dict,
         run_key: str | None,
@@ -158,7 +174,7 @@ def create_app(
                 logger.exception("durable showcase verification failed")
                 showcase_ready = False
         else:
-            showcase_ready = store.latest_verified_live() is not None
+            showcase_ready = False
         return {
             "demoReady": True,
             "pipelineVersion": PIPELINE_VERSION,
@@ -187,7 +203,10 @@ def create_app(
                     detail="durable showcase failed integrity verification",
                 ) from error
         else:
-            run = store.latest_verified_live()
+            raise HTTPException(
+                status_code=503,
+                detail="durable B2 showcase storage is unavailable",
+            )
         if run is None:
             raise HTTPException(status_code=404, detail="no verified live showcase is published")
         return run
@@ -253,7 +272,7 @@ def create_app(
         x_proofforge_idempotency_key: str | None = Header(default=None),
     ) -> dict:
         if request.mode == "demo":
-            client_key = http_request.client.host if http_request.client else "unknown"
+            client_key = demo_client_key(http_request)
             now = time.monotonic()
             with demo_rate_lock:
                 if client_key not in demo_requests:
@@ -389,27 +408,47 @@ def create_app(
         if run["status"] != "completed":
             raise HTTPException(status_code=409, detail="only completed runs can be reviewed")
         verified = bool(operator and run["mode"] == "live")
+        if request.approved and verified and durable_showcase is None:
+            raise HTTPException(
+                status_code=503,
+                detail="durable B2 showcase storage is unavailable",
+            )
         review_record = store.add_review(
             run_id,
             request.approved,
             request.reviewer,
             request.notes,
             verified=verified,
+            publication_status=("pending" if request.approved and verified else "not_requested"),
         )
         if review_record["approved"] and review_record["verified"]:
-            if durable_showcase is None:
-                raise HTTPException(
-                    status_code=503,
-                    detail="durable B2 showcase storage is unavailable",
-                )
             try:
-                durable_showcase.publish(store.get(run_id))
+                publication_candidate = store.get(run_id)
+                candidate_review = next(
+                    item
+                    for item in reversed(publication_candidate["reviews"])
+                    if item["createdAt"] == review_record["createdAt"]
+                )
+                candidate_review["publicationStatus"] = "published"
+                candidate_review["publicationError"] = None
+                durable_showcase.publish(publication_candidate)
             except Exception as error:
                 logger.exception("durable showcase publication failed")
+                store.set_review_publication(
+                    run_id,
+                    review_record["createdAt"],
+                    "failed",
+                    type(error).__name__,
+                )
                 raise HTTPException(
                     status_code=502,
-                    detail="operator approval was recorded but B2 showcase publication failed",
+                    detail="operator approval was retained as unpublished after B2 failure",
                 ) from error
+            review_record = store.set_review_publication(
+                run_id,
+                review_record["createdAt"],
+                "published",
+            )
         return review_record
 
     @application.get("/api/runs/{run_id}/evidence.zip")

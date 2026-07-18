@@ -19,6 +19,7 @@ class Settings:
     b2_public_url_base: str
     signing_key: str
     signing_key_persistent: bool
+    trust_edge_client_ip: bool
     image_model: str
     image_fallback_model: str
     judge_model: str
@@ -84,6 +85,9 @@ def load_settings(data_dir: Path | None = None) -> Settings:
         b2_public_url_base=os.getenv("B2_PUBLIC_URL_BASE", ""),
         signing_key=signing_key,
         signing_key_persistent=signing_key_persistent,
+        trust_edge_client_ip=(
+            os.getenv("PROOFFORGE_TRUST_EDGE_CLIENT_IP", "false").lower() == "true"
+        ),
         image_model=os.getenv("PROOFFORGE_IMAGE_MODEL", "gpt-image-2"),
         image_fallback_model=os.getenv("PROOFFORGE_IMAGE_FALLBACK_MODEL", "gpt-image-1.5"),
         judge_model=os.getenv("PROOFFORGE_JUDGE_MODEL", "gpt-5.6-terra"),
