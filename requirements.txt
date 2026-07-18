@@ -1,0 +1,6 @@
+fastapi==0.139.2
+uvicorn[standard]==0.51.0
+genblaze==0.4.3
+genblaze-openai==0.3.2
+genblaze-s3==0.3.5
+defusedxml==0.7.1

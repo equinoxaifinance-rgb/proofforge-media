@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ProofForge Media | Every asset needs an alibi</title>
+  <meta name="description" content="A provenance-first generative media workflow powered by Genblaze and Backblaze B2.">
+  <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#top"><span>PF</span>ProofForge Media</a>
+    <div class="system-status"><i></i><span id="system-copy">Demo pipeline ready</span></div>
+    <a class="outline-button" href="#forge">Open forge</a>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="kicker">GENERATE / EVALUATE / REVISE / PROVE</p>
+        <h1>Every asset<br>needs an <em>alibi.</em></h1>
+        <p class="lead">ProofForge turns AI media into a production workflow: quality gates, automatic revision, and a manifest that explains exactly what happened. The public path is a synthetic local demo; operator mode adds verified OpenAI generation and Backblaze B2 persistence.</p>
+        <div class="tech-row"><span>GENBLAZE AGENT LOOP</span><span>B2 LIVE MODE LOCKED</span><span>SHA-256 LINEAGE</span></div>
+      </div>
+      <div class="manifest-card">
+        <div class="manifest-head"><span>DEMO MANIFEST</span><b>LOCAL / SYNTHETIC</b></div>
+        <div class="hash-orbit"><div><span>SHA</span><strong>256</strong></div></div>
+        <dl><div><dt>Pipeline</dt><dd>generate → judge → revise</dd></div><div><dt>Demo storage</dt><dd>local / content addressed</dd></div><div><dt>Demo review</dt><dd>self-attested / unverified</dd></div></dl>
+      </div>
+    </section>
+
+    <section class="showcase-band" id="live-showcase" hidden aria-labelledby="showcase-title">
+      <div class="showcase-copy-block">
+        <p class="kicker">VERIFIED LIVE RUN / OPENAI + GENBLAZE + B2</p>
+        <h2 id="showcase-title">The evidence survived its own retrieval.</h2>
+        <p id="showcase-copy">A verified operator-approved campaign is available from durable object storage.</p>
+        <dl class="showcase-facts">
+          <div><dt>Asset SHA-256</dt><dd><code id="showcase-hash"></code></dd></div>
+          <div><dt>Stored iterations</dt><dd id="showcase-iterations"></dd></div>
+          <div><dt>Review</dt><dd id="showcase-approval"></dd></div>
+        </dl>
+      </div>
+      <div class="showcase-image-wrap">
+        <img id="showcase-image" alt="Verified live campaign asset retrieved from Backblaze B2">
+        <span>B2 FETCH-BACK VERIFIED</span>
+      </div>
+    </section>
+
+    <section class="forge" id="forge">
+      <form id="brief-form" class="brief-panel">
+        <div class="section-label"><span>01</span><div><p>CAMPAIGN INPUT</p><h2>Write the brief once.</h2></div></div>
+        <label>Campaign name<input name="campaign_name" value="Northstar Cold Brew" minlength="3" maxlength="80" required></label>
+        <label>Audience<input name="audience" value="Busy creative professionals who want a clean afternoon lift" minlength="3" required></label>
+        <div class="field-row"><label>Channel<select name="channel"><option value="social">Social</option><option value="display">Display</option><option value="email">Email</option><option value="editorial">Editorial</option></select></label><label>Quality bar<input name="quality_threshold" type="number" min="0.5" max="0.99" step="0.01" value="0.90"></label></div>
+        <label>Core message<textarea name="message" minlength="10" maxlength="600" required>Clean energy without the crash. Built for the work you are proud of.</textarea></label>
+        <label>Visual direction<textarea name="visual_style" minlength="3" required>Editorial product photography, strong geometric light, premium but human, high contrast.</textarea></label>
+        <label class="check"><input type="checkbox" name="inject_weak_first" checked><span><b>Inject a weak first pass</b><small>Demonstrates automatic evaluation and revision without spending API credits.</small></span></label>
+        <button class="forge-button" type="submit"><span>Run evidence pipeline</span><b>↗</b></button>
+        <p class="mode-note">Public mode uses Genblaze's deterministic provider. Live generation stays operator-locked until OpenAI and B2 credentials are configured.</p>
+      </form>
+
+      <section class="run-panel" aria-live="polite">
+        <div class="section-label"><span>02</span><div><p>ORCHESTRATION TRACE</p><h2 id="run-heading">Ready to forge.</h2></div></div>
+        <div id="empty-state" class="empty-state"><div class="empty-mark">PF</div><p>Submit the brief to watch Genblaze generate, evaluate, revise, and attach an evidence trail.</p></div>
+        <div id="run-result" class="run-result" hidden>
+          <div class="asset-wrap"><img id="asset-preview" alt="Generated campaign preview"><span id="asset-mode">DEMO ASSET</span></div>
+          <div class="trace" id="trace"></div>
+          <div class="receipt-grid"><article><span>Manifest</span><code id="manifest-hash"></code></article><article><span>Object key</span><code id="object-key"></code></article><article><span>Integrity</span><strong id="integrity">PENDING</strong></article></div>
+          <div class="review-fields"><label>Reviewer name<input id="reviewer-name" maxlength="80" placeholder="Your name" autocomplete="name" aria-describedby="review-status"></label><label>Review note<textarea id="review-note" maxlength="800" placeholder="What did you verify?"></textarea></label></div>
+          <p class="review-disclosure">Public demo reviews are self-attested and stored as <strong>unverified</strong>. Only an authenticated operator can create a verified live approval.</p>
+          <p id="review-status" class="review-status" role="status" aria-live="polite"></p>
+          <div class="run-actions"><button id="bundle-button" class="forge-button secondary" type="button">Download evidence.zip</button><button id="approve-button" class="forge-button" type="button">Record demo self-review</button></div>
+        </div>
+        <div id="error-state" class="error-state" role="alert" aria-atomic="true" hidden></div>
+      </section>
+    </section>
+
+    <section class="architecture">
+      <div class="section-label"><span>03</span><div><p>WHY IT IS DIFFERENT</p><h2>Failure is part of the demo.</h2></div></div>
+      <div class="architecture-grid"><article><b>01</b><h3>Generate</h3><p>Genblaze normalizes provider and model execution into one traceable run.</p></article><article><b>02</b><h3>Evaluate</h3><p>A quality gate treats the image and brief as untrusted data, then scores the output.</p></article><article><b>03</b><h3>Revise</h3><p>Feedback flows into the next prompt with parent-run lineage preserved.</p></article><article><b>04</b><h3>Persist</h3><p>Authorized live runs store every iteration under content-addressed B2 keys, then fetch every asset back to verify its hash.</p></article><article><b>05</b><h3>Review</h3><p>Demo self-reviews are unverified; authenticated live approvals are separate audit events.</p></article><article><b>06</b><h3>Export</h3><p>One access-controlled bundle contains the brief, receipt, final manifest, and verified final asset; live receipts also expose the complete stored lineage.</p></article></div>
+    </section>
+  </main>
+
+  <footer><span>ProofForge Media · Genblaze demo + operator-locked B2 path</span><span>DEMO OUTPUT IS LOCAL AND SYNTHETIC · B2 IS CLAIMED ONLY AFTER FETCH-BACK VERIFICATION</span></footer>
+  <script src="/static/app.js" defer></script>
+</body>
+</html>

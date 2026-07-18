@@ -1,0 +1,12 @@
+.contestpilot-generated-release
+.venv/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+data/
+.env
+.env.*
+!.env.example
+*.pyc
+*.log
+!reports/qa/release-verify.log

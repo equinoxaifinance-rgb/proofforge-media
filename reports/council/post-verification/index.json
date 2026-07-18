@@ -1,0 +1,38 @@
+﻿[
+    {
+        "reviewer":  "anthropic-claude-sonnet-4-6",
+        "focus":  "ProofForge reliability, data integrity, concurrency, and failure recovery; maximum three findings.",
+        "status":  "completed",
+        "startedAt":  "2026-07-18T05:58:30.7320633Z",
+        "completedAt":  "2026-07-18T06:00:05.2317164Z",
+        "report":  ".\\reports\\council\\post-verification\\anthropic-claude-sonnet-4-6.md",
+        "sha256":  "95641b2f430db2b469bcc101c4a62156091de7c40b2de03f7de3d218d54607f7"
+    },
+    {
+        "reviewer":  "google-gemini-3.1-pro-preview",
+        "focus":  "UI, accessibility, responsive behavior, product usefulness, and demo clarity.",
+        "status":  "completed",
+        "startedAt":  "2026-07-18T06:00:05.3444297Z",
+        "completedAt":  "2026-07-18T06:00:24.6954313Z",
+        "report":  ".\\reports\\council\\post-verification\\google-gemini-3.1-pro-preview.md",
+        "sha256":  "acd6ebd129c15dad150a3888ff9d56945d70eb79c1920e375a22a0402d601ae8"
+    },
+    {
+        "reviewer":  "deepseek-v4-pro",
+        "focus":  "ProofForge security, validation, authorization, archive safety, and dependency risk; maximum three findings.",
+        "status":  "completed",
+        "startedAt":  "2026-07-18T06:00:24.7312563Z",
+        "completedAt":  "2026-07-18T06:02:29.8280275Z",
+        "report":  ".\\reports\\council\\post-verification\\deepseek-v4-pro.md",
+        "sha256":  "62cea04b9225c544ef61be07c0dc1b4f700608feb51eb940321d87da2378f20e"
+    },
+    {
+        "reviewer":  "xai-grok-4.3",
+        "focus":  "Skeptical Devpost judging, rule compliance, claim truthfulness, and competitive differentiation.",
+        "status":  "completed",
+        "startedAt":  "2026-07-18T06:02:29.8570207Z",
+        "completedAt":  "2026-07-18T06:02:47.9394318Z",
+        "report":  ".\\reports\\council\\post-verification\\xai-grok-4.3.md",
+        "sha256":  "e06ceac1557da026301474ef6d4a2c4775f2504bcf0d754b5e86617df3608aff"
+    }
+]

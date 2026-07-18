@@ -1,0 +1,110 @@
+# Runtime QA receipts — 2026-07-17
+
+These receipts separate executed checks from source inspection. They do not prove a contest
+result or Devpost acceptance. A paid OpenAI generation and real Backblaze B2 write/recovery are
+now separately receipted in `reports/integrations/PROOFFORGE-LIVE-RECEIPT.md`.
+
+## Dependency-clean matrix
+
+The source was copied to an isolated `<qa-cold>/devpost-autopilot-20260718-v5` directory with Git metadata, installed dependencies, Python caches, test caches, databases, and persisted ProofForge data excluded. Before installation, the copy contained 204 files, zero forbidden dependency/cache directories, and no ProofForge persisted data.
+
+- Root: `npm ci --ignore-scripts` audited one package with zero vulnerabilities; `npm test`
+  passed 15/15 tests.
+- ContestPilot site: `npm ci --ignore-scripts` installed 332 packages and audited 333 with
+  zero vulnerabilities; the Vinext production build passed two render/asset tests and ESLint.
+- Repeated site builds produced identical hashes for every client artifact. Exactly three
+  server artifacts changed: `server/index.js`, `server/ssr/vinext-server.json`, and
+  `server/vinext-server.json`. Diff inspection showed only Vinext's intentionally rotated
+  prerender/draft secrets, UUID build ID, and deployment version.
+- ProofForge: a new Python 3.11 virtual environment installed
+  `requirements-dev-lock.txt` with `--require-hashes`; pytest passed 22/22 tests in 4.00s and
+  Ruff returned `All checks passed!`.
+- The formerly failing concurrent legacy migration test then passed in the clean copy. In the
+  source environment it also passed 30/30 consecutive eight-worker stress iterations.
+
+## ContestPilot browser and production behavior
+
+- Public URL: https://contestpilot-evidence-2026.therealbortega.chatgpt.site
+- Production HTML and all six hydration assets returned HTTP 200. Security responses include
+  CSP, `X-Content-Type-Options: nosniff`, and `Referrer-Policy`.
+- A fresh public browser tab produced no console entries. After hydration, Ready showed its
+  explicit empty state; Review selected Backblaze; its evidence plan expanded; Reset restored
+  All and announced the reset through a status region.
+- Layout measurements showed no horizontal overflow at desktop (`1308 == 1308`) or mobile
+  (`375 == 375`). Receipts: `contestpilot-desktop-1308x890.jpg` and
+  `contestpilot-mobile-375x812.jpg`.
+
+## ProofForge Media runtime behavior
+
+- Public QA URL: https://conceptual-initial-jungle-neural.trycloudflare.com. This is an
+  ephemeral Cloudflare Quick Tunnel with no uptime guarantee; it is not represented as a
+  durable final submission host.
+- Public browser QA forced a 58% first iteration and reached 95% on iteration two. Integrity
+  displayed `VERIFIED`, the output was explicitly labeled local/synthetic, pipeline version
+  was `2026-07-17.4`, and the browser console remained empty.
+- A whitespace-only reviewer was rejected while the prior evidence and preview remained.
+  With the API deliberately stopped in local QA, a new run reported
+  `New action failed; prior evidence preserved.` and kept the last verified preview.
+- Desktop and 375px mobile layouts had no horizontal overflow. Receipts:
+  `proofforge-preview-desktop-1308x890.jpg`, `proofforge-desktop-1308x890.jpg`, and
+  `proofforge-mobile-375x812.jpg`.
+- A no-cache Docker build produced image digest
+  `sha256:2329188e6567c857de832bd88f90ad2ca194ca23b76075358a9f0b1091fc02fb`.
+  The container ran as the non-root `proofforge` user, with a read-only root filesystem, and
+  reached Docker health `healthy`.
+- Container API adversary: unauthenticated run/asset/review access returned 401; authorized
+  asset and bundle access returned 200; the same scoped token remained valid after restart;
+  one-byte asset corruption changed access to 409; retry reused the run, exposed
+  `queued -> queued -> completed`, repaired the artifact, and restored verified 200 access.
+- The production and dev dependency locks are hash pinned. A deliberately all-zero SHA-256
+  fixture was rejected with pip's `THESE PACKAGES DO NOT MATCH THE HASHES` message.
+
+## Current unified release and release-repository gate
+
+- The canonical current gate is `reports/qa/release-verify.receipt.json`, produced by
+  `npm run release:verify` after 17/17 bounded steps:
+  19 ContestPilot engine tests; the ContestPilot production build and two render/asset tests;
+  ContestPilot lint and npm audit; 40 ProofForge tests with warnings treated as errors;
+  Ruff; `pip check`; `pip-audit`; Cloudflare wrapper audit, dry-run build, and three config
+  tests; clean release generation and layout verification; secret scanning; packaged import and
+  packaged tests; a pinned ProofForge container build; and the container judge-path smoke.
+  The receipt binds the transcript SHA-256. The log and receipt are copied byte-identically into
+  the root, ContestPilot release, and ProofForge release.
+- The container smoke returned health 200, completed the demo pipeline with
+  `assetHashVerified=true`, and retrieved asset, manifest, and evidence bundle (3/3).
+- Clean allowlisted release directories were regenerated. A secret scanner passed both
+  directories and its negative-control fixture correctly failed on a populated fake B2 key.
+- Clean-room install from the generated ContestPilot directory passed 19 engine tests,
+  installed/audited 333 site packages with zero vulnerabilities, passed its production
+  build and two render/asset tests, and passed ESLint.
+- The generated ProofForge directory imported successfully, passed the same 40 tests, built as
+  a container, and passed the protected judge-path smoke. The packaged B2 client then loaded the
+  real approved run `c2ab959e-ecd7-4b90-b152-9f1f23bc82b6`, fetched 1,213,775 media bytes, and
+  independently matched SHA-256
+  `6d899e872d4ca78dea258dbf686f615303b9b2d4eff2522f39338128d1c0417b` plus manifest hash
+  `d780339a7a5db5b7493eea0b7c193b84b7692da41dc7be03bcf53183b4ca1c4d`.
+- CycloneDX inventories were regenerated. ProofForge SBOM SHA-256:
+  `2caafd5ce5c4a6df0816b820c541da2210c17bd4483969a49a4d351de3787800`;
+  ContestPilot site SBOM SHA-256:
+  `4e208f5721f0b511753f8f656e9f6dc82256e945d4d5405eda5d0fb490c10e5e`;
+  ProofForge Cloudflare wrapper SBOM SHA-256:
+  `60745a6f8535713c729ef790abc91a8b8fad3f0835736cd507cbf659c219e5d0`.
+
+## Independent council receipts
+
+Raw reports and their SHA-256 digests are indexed in `reports/council/RECONCILIATION.md`.
+The council used Anthropic Claude Sonnet 4.6, Google Gemini 3.1 Pro Preview, DeepSeek V4 Pro,
+and xAI Grok 4.3. Findings are not accepted by vote: every accepted item maps to a change and
+an executed check; rejected advice includes an explicit failure-mode analysis.
+
+## Open gates and blind spots
+
+- The approved live ProofForge run scored 0.98, persisted its asset and manifest to B2, and
+  recovered from an empty local database/disk cache with a matching 1,213,775-byte SHA-256.
+  Exact receipts are in `reports/integrations/PROOFFORGE-LIVE-RECEIPT.md`.
+- The ProofForge public URL is temporary, not durable.
+- Existing private videos predate the approved live B2 showcase and durable recovery layer;
+  they are stale and are not final judge artifacts. Videos remain last.
+- Public repositories and final Devpost receipts do not exist yet.
+- Sponsor/judge/employment/conflict exclusions still require explicit owner attestation.
+- Final rule acceptance and Devpost submission remain owner actions.

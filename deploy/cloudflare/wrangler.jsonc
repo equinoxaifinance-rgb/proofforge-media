@@ -1,0 +1,32 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "proofforge-media",
+  "main": "src/index.js",
+  "compatibility_date": "2026-07-17",
+  "compatibility_flags": ["nodejs_compat"],
+  "containers": [
+    {
+      "class_name": "ProofForgeContainer",
+      "image": "../../Dockerfile",
+      "instance_type": "lite",
+      "max_instances": 1
+    }
+  ],
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "PROOFFORGE_CONTAINER",
+        "class_name": "ProofForgeContainer"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": ["ProofForgeContainer"]
+    }
+  ],
+  "observability": {
+    "enabled": true
+  }
+}

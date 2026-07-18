@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "1",
+  "capturedAt": "2026-07-18T05:13:00Z",
+  "service": "ProofForge Media",
+  "pipelineVersion": "2026-07-18.1",
+  "showcase": {
+    "runId": "c2ab959e-ecd7-4b90-b152-9f1f23bc82b6",
+    "genblazeRunId": "e3aed0e7-16c6-4c18-86ab-7e8f8402e435",
+    "startedAt": "2026-07-18T05:05:59.890657+00:00",
+    "completedAt": "2026-07-18T05:08:45.999327+00:00",
+    "status": "completed",
+    "qualityThreshold": 0.95,
+    "score": 0.98,
+    "iterations": 1,
+    "evaluator": {
+      "model": "gpt-5.6-terra",
+      "responseId": "resp_06710f41e5129cba016a5b0a55f33881a18af87ed75ae497c5",
+      "inputTokens": 1606,
+      "outputTokens": 238,
+      "reasoningTokens": 107,
+      "forbiddenTermsDetected": [],
+      "promptInjectionDetected": false
+    },
+    "generationCostUsd": null,
+    "generationCostStatus": "provider_price_unavailable",
+    "asset": {
+      "bytes": 1213775,
+      "sha256": "6d899e872d4ca78dea258dbf686f615303b9b2d4eff2522f39338128d1c0417b",
+      "objectKey": "proofforge/assets/6d/89/6d899e872d4ca78dea258dbf686f615303b9b2d4eff2522f39338128d1c0417b.png"
+    },
+    "manifest": {
+      "objectKey": "proofforge/manifests/e3aed0e7-16c6-4c18-86ab-7e8f8402e435.json",
+      "canonicalHash": "d780339a7a5db5b7493eea0b7c193b84b7692da41dc7be03bcf53183b4ca1c4d"
+    },
+    "checks": {
+      "assetHashVerified": true,
+      "allIterationHashesVerified": true,
+      "storedManifestHashVerified": true,
+      "qualityThresholdMet": true,
+      "operatorApprovalVerified": true,
+      "b2ShowcaseReceiptFetchBackVerified": true,
+      "b2ShowcasePointerFetchBackVerified": true
+    }
+  },
+  "restartRecovery": {
+    "localRunCount": 0,
+    "showcaseReady": true,
+    "recoveredRunId": "c2ab959e-ecd7-4b90-b152-9f1f23bc82b6",
+    "recoveredBytes": 1213775,
+    "recoveredSha256": "6d899e872d4ca78dea258dbf686f615303b9b2d4eff2522f39338128d1c0417b",
+    "hashVerified": true
+  },
+  "preflight": {
+    "adapter": "genblaze-s3",
+    "bytes": 1095512,
+    "sha256": "084f877751248e9ec4a263337d8e3f53ccd9249bfb3afa8fdbcba05dec1aa5d2",
+    "objectKey": "proofforge/preflight/assets/08/4f/084f877751248e9ec4a263337d8e3f53ccd9249bfb3afa8fdbcba05dec1aa5d2.png",
+    "fetchBackHashVerified": true,
+    "deletedAfterTest": true
+  },
+  "localVerification": {
+    "pytest": "31 passed",
+    "ruff": "All checks passed!"
+  },
+  "secretsIncluded": false
+}
